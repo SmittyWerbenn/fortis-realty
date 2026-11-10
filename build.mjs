@@ -16,7 +16,9 @@ const SRC = path.join(ROOT, 'full');
 const OUT = path.join(ROOT, 'dist');
 const FORTIS = path.join(ROOT, 'fortis');
 const BASE = (process.env.BASE_PATH ?? '/fortis-realty').replace(/\/+$/, ''); // '' = domain root
-const ORIGIN = (process.env.ORIGIN ?? 'http://localhost:8090').replace(/\/+$/, '');
+// actions/configure-pages reports http:// for a custom domain while "Enforce HTTPS" is off; real sites are served over
+// HTTPS (e.g. through Cloudflare), and http:// URLs inside an https page are blocked as mixed content -> always upgrade.
+const ORIGIN = (process.env.ORIGIN ?? 'http://localhost:8090').replace(/\/+$/, '').replace(/^http:\/\/(?!localhost|127\.0\.0\.1)/, 'https://');
 const MAIN = 'lumura.framer.website';
 
 const hosts = fs.readdirSync(SRC).filter(h => h !== '_rendered');
