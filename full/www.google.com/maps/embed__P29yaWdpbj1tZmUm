@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style type="text/css">
+      html, body, #mapDiv {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="mapDiv"></div>
+      
+    <script nonce="fXf-KdfrOWpQwg3Ocs5_3Q">
+      function onEmbedLoad() {
+        initEmbed([null,null,null,null,null,[[[2,"spotlit",null,null,null,null,null,[null,null,null,null,null,null,null,null,null,null,11,null,[null,null,null,null,null,null,null,null,null,null,null,null,null,1]]]],null,null,[[null,null,null,null,null,null,null,null,null,null,null,null,null,[[["6118902626105046539","2034423694542944066"],"/m/09c7w0",null,[387945952,3229618917],null,null,null,1,null,null,null,[[157760139,2561975000],[727087158,3631773542]],null,null,"gcid:country"],0,null,null,null,0,null,0,0]]]],null,["en_US"],[null,null,null,"/maps/api/js/ApplicationService.GetEntityDetails","/maps/embed/upgrade204",null,"/maps/embed/record204"],null,null,null,null,null,null,null,null,"4_ryauKADbGjhvcPor6j0Ao",null,null,null,[[[46830149.74231837,-119.8093025,44.24236485],[0,0,0],null,13.10000038146973],10,null,[["0x54eab584e432360b:0x1c3bb99243deb742","United States",[38.7945952,-106.5348379]],"United States",null,null,null,null,null,null,null,null,null,["http://www.usa.gov/","usa.gov",null,null,",AOvVaw30ZOasj9MUBWXd3IVSPkdg,,2ahUKEwii_vWlof2XAxWxkeEIHSLfCKoQ61goA3oECAQQBg,"],null,null,null,null,null,null,null,null,null,null,null,null,1,null,null,"ChIJCzYy5IS16lQRQrfeQ5K5Oxw",null,null,"2ahUKEwii_vWlof2XAxWxkeEIHSLfCKoQ8BcoAHoECAQQAg"]],null,null,null,0,null,null,null,null,null,null,[1]]);
+      }
+      function onApiLoad() {
+        var embed = document.createElement('script');
+        embed.src = "https://maps.gstatic.com/maps-api-v3/embed/js/66/13d/init_embed.js";
+        document.body.appendChild(embed);
+      }
+    </script>
+    <link rel="preload" href="https://maps.gstatic.com/maps-api-v3/embed/js/66/13d/init_embed.js" nonce="fXf-KdfrOWpQwg3Ocs5_3Q" as="script" />
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCmL18misQw9KdwqGaw3zHkitj8vG6QF2Y&amp;paint_origin=&amp;libraries=geometry,search&amp;v=weekly&amp;loading=async&amp;language=en_US&amp;experimentation=allowed&amp;callback=onApiLoad" nonce="fXf-KdfrOWpQwg3Ocs5_3Q" async defer></script>
+  </body>
+</html>

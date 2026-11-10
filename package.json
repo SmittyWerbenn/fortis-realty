@@ -1,0 +1,14 @@
+{
+  "name": "fortis-realty",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Company profile & property platform for Fortis Realty",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "node server.mjs",
+    "build": "node build.mjs",
+    "build:root": "BASE_PATH= node build.mjs",
+    "preview": "node preview.mjs"
+  }
+}

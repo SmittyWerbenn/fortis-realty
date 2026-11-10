@@ -1,0 +1,8 @@
+dist/
+node_modules/
+.DS_Store
+*.log
+.env
+
+# originals of fortis/img/catalog-*.webp (duplicates)
+/catalog-*.webp
