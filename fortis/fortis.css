@@ -456,3 +456,6 @@ html:not(.fr-ready) footer{visibility:hidden!important}
 .fr-tl.l{left:0;bottom:0;width:1px;height:6px}
 .fr-tl.r{right:0;bottom:0;width:1px;height:6px}
 @media(max-width:767px){.fr-tag{font-size:14px!important;line-height:14px!important}}
+
+/* /project photo reveal (centre -> sides) */
+.fr-pclip{clip-path:inset(0 50% 0 50%)}

@@ -24,3 +24,7 @@ export function brandHead(html, { origin = '', base = '', route = '/' } = {}) {
   set(/(<meta name="twitter:image" content=")[^"]*(")/, og);
   return html;
 }
+
+// Framer's runtime rewrites document.title with the template's own title shortly after load ("Lumura – …").
+// This tiny script (runs first, in <head>) puts the Fortis title straight back, before it is ever painted in the tab.
+export const TITLE_GUARD = `(function(){var t=document.querySelector("title");if(!t)return;window.__frTitle=document.title;var busy=false;function fix(){if(busy)return;var c=document.title,n=c.replace(/ - Lumura$/,' - Fortis Realty');if(/Lumura/.test(n))n=window.__frTitle;if(n!==c){busy=true;document.title=n;busy=false}}new MutationObserver(fix).observe(document.head,{childList:true,characterData:true,subtree:true})})()`;

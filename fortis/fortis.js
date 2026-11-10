@@ -258,7 +258,7 @@ function textSwap() {
   }
   const dm = document.title.match(/^(.*) - (?:Lumura|Fortis Realty)$/);
   const T = dm ? dm[1] + ' - Fortis Realty' : /^\/project\/?$/.test(ROUTE()) ? tr('Properti Kami') + ' – Fortis Realty' : tr('Fortis Realty – Konsultan & Broker Properti Tepercaya');
-  if (document.title !== T) document.title = T;
+  window.__frTitle = T; if (document.title !== T) document.title = T;
   document.documentElement.lang = LANG;
 }
 
@@ -449,6 +449,7 @@ function brandProjects() {
       $('[data-framer-name="Card Content"]', a).appendChild(m);
     }
   });
+  decorateProjectImages();
   // the template's "Load More" button is not needed here: hide it (and never let Framer paginate the CMS list)
   $$('button, a, [role="button"]').filter(e => /^\s*load more\s*$/i.test(e.textContent)).forEach(more => {
     const box = more.closest('[class*="-container"]') || more; box.setAttribute('data-fr-hide', '');
@@ -556,6 +557,24 @@ function decorateTags() {
     run($('.fr-tl.b', t), 'width'); run($('.fr-tl.t', t), 'width'); run($('.fr-tl.l', t), 'height'); run($('.fr-tl.r', t), 'height');
   }), { threshold: 0.9 });
   tags.forEach(t => tagIO.observe(t));
+}
+
+/* ---- /project: card photos open from the centre to both sides, like the home catalog ---- */
+let pimgIO;
+function decorateProjectImages() {
+  if (REDUCED || !('IntersectionObserver' in window)) return;
+  const cards = $$('a[data-fr-go]').filter(a => !a.dataset.frImg && $('[data-framer-name="Image"]', a));
+  if (!cards.length) return;
+  if (!pimgIO) pimgIO = new IntersectionObserver(es => es.forEach(en => {
+    if (!en.isIntersecting) return;
+    const a = en.target; pimgIO.unobserve(a); const fr = $('[data-framer-name="Image"]', a); if (!fr) return;
+    const i = $$('a[data-fr-go]').indexOf(a);
+    fr.classList.remove('fr-pclip');
+    fr.animate([{ clipPath: 'inset(0 50% 0 50%)' }, { clipPath: 'inset(0 0% 0 0%)' }], { duration: 1100, delay: (i % 2) * 140, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'backwards' });
+    const im = $('img', fr); if (im) im.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 1400, delay: (i % 2) * 140, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
+  }), { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+  cards.forEach(a => { a.dataset.frImg = '1'; $('[data-framer-name="Image"]', a).classList.add('fr-pclip'); pimgIO.observe(a); });
+  setTimeout(() => $$('.fr-pclip').forEach(el => el.classList.remove('fr-pclip')), 15000);
 }
 /* ---- scroll reveal (same feel as the template: fade + rise as objects enter the viewport) ---- */
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
