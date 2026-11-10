@@ -2,6 +2,8 @@
 //   node build.mjs                      -> dist/ for a project site at /fortis-realty
 //   BASE_PATH=  node build.mjs          -> dist/ for a domain root (custom domain / user site)
 //   BASE_PATH=/other node build.mjs     -> dist/ for another sub-path
+//   ORIGIN=https://example.com          -> absolute origin written into the pages (Framer calls new URL(x) on them,
+//                                          so they must be absolute; CI passes the Pages origin automatically)
 //
 // It reproduces what server.mjs does at request time (host rewriting, injecting the Fortis layer,
 // size-variant fallbacks) but once, ahead of time, so the result can be served by any static host.
@@ -14,6 +16,7 @@ const SRC = path.join(ROOT, 'full');
 const OUT = path.join(ROOT, 'dist');
 const FORTIS = path.join(ROOT, 'fortis');
 const BASE = (process.env.BASE_PATH ?? '/fortis-realty').replace(/\/+$/, ''); // '' = domain root
+const ORIGIN = (process.env.ORIGIN ?? 'http://localhost:8090').replace(/\/+$/, '');
 const MAIN = 'lumura.framer.website';
 
 const hosts = fs.readdirSync(SRC).filter(h => h !== '_rendered');
@@ -23,12 +26,18 @@ const TEXT = new Set(['.html', '.js', '.mjs', '.css', '.json']);
 // ---- text rewriting (same rules as server.mjs, but to a path instead of an origin) ----
 function rewrite(s) {
   for (const h of hosts) {
-    const to = h === MAIN ? BASE + '/' : BASE + '/' + h + '/';
-    s = s.split('https://' + h + '/').join(to).split('//' + h + '/').join(to);
+    const to = ORIGIN + (h === MAIN ? BASE + '/' : BASE + '/' + h + '/');
+    s = s.split('https://' + h + '/').join(to).split('//' + h + '/').join(to.slice(to.indexOf('//')));
   }
   return s;
 }
 const HEAD_SCRIPT = `<script>window.__FR_BASE=${JSON.stringify(BASE)};(function(){var p=location.pathname;if(${JSON.stringify(BASE)}&&p.indexOf(${JSON.stringify(BASE)})===0)p=p.slice(${BASE.length})||"/";if(p.replace(/[/]+$/,"")==="/project")document.documentElement.classList.add("fr-proj")})()</script>`;
+// Cloudflare (Email Address Obfuscation) rewrites raw e-mail addresses in HTML, which makes Framer's hydration fail.
+// Encoding the "@" keeps the DOM text identical but is not matched by Cloudflare.
+const EMAIL = /([A-Za-z0-9._%+-]+)@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})/g;
+function protectEmails(html) {
+  return html.split(/(<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>)/i).map((part, i) => (i % 2 ? part : part.replace(EMAIL, '$1&#64;$2'))).join('');
+}
 function injectHtml(s) {
   s = rewrite(s);
   s = s.replace(/<link[^>]*rel="(?:shortcut )?icon"[^>]*>/g, '').replace(/<link[^>]*rel="apple-touch-icon"[^>]*>/g, '');
@@ -36,8 +45,17 @@ function injectHtml(s) {
     `<link rel="icon" type="image/png" sizes="64x64" href="${BASE}/__fortis/favicon.png"><link rel="apple-touch-icon" href="${BASE}/__fortis/apple-touch-icon.png">` +
     `<link rel="stylesheet" href="${BASE}/__fortis/fortis.css">${HEAD_SCRIPT}<script defer src="${BASE}/__fortis/fortis.js"></script>` +
     `<style>#__framer-badge-container,.__framer-badge{display:none!important}</style></head>`);
-  return s.replace(/<script[^>]*(events\.framer\.com|framer\.com\/edit)[^>]*><\/script>/g, '');
+  s = s.replace(/<script[^>]*(events\.framer\.com|framer\.com\/edit)[^>]*><\/script>/g, '');
+  return protectEmails(s);
 }
+
+// ---- Framer CMS: the runtime asks for  <file>.framercms?range=a-b,c-d  (server-side byte ranges).
+// A static host ignores the query and returns the whole file, which Framer rejects ("Unexpected response length").
+// server.mjs stores every captured query as  <file>__<base64url(?query)[0..16]>.<ext>, so the runtime is patched to
+// request that variant file directly. (The variants are copied below.)
+const RANGE_CALL = /a\.searchParams\.set\(`range`,o\);let s=await (\w+)\(a\)/g;
+const RANGE_URL = '((v)=>{let h=btoa(unescape(encodeURIComponent(v.search))).replace(/\\+/g,"-").replace(/\\//g,"_").replace(/=+$/,"").slice(0,16),u=new URL(v);u.search="";u.pathname=u.pathname.replace(/(\\.[^./]*)?$/,m=>"__"+h+m);return u})(a)';
+function patchRange(js) { return js.replace(RANGE_CALL, (m, fn) => `a.searchParams.set(\`range\`,o);let s=await ${fn}(${RANGE_URL})`); }
 
 // ---- helpers ----
 const mkdirp = d => fs.mkdirSync(d, { recursive: true });
@@ -88,9 +106,13 @@ for (const h of hosts) {
     if (fs.existsSync(target)) continue; // rendered page already there, or e.g. framer.com/edit (file vs folder)
     if (fs.existsSync(path.dirname(target)) && !fs.statSync(path.dirname(target)).isDirectory()) continue;
     const ext = path.extname(rel).toLowerCase();
-    if (TEXT.has(ext)) { write(target, rewrite(fs.readFileSync(chosen, 'utf8'))); rewritten++; }
+    if (TEXT.has(ext)) { let txt = rewrite(fs.readFileSync(chosen, 'utf8')); if (ext === '.mjs' || ext === '.js') txt = patchRange(txt); write(target, txt); rewritten++; }
     else { mkdirp(path.dirname(target)); fs.copyFileSync(chosen, target); }
     count++;
+    // CMS byte-range variants are served by exact file name (see patchRange)
+    if (h === 'framerusercontent.com' && rel.startsWith('cms/')) {
+      for (const v of g.variants) { const t2 = path.join(OUT, prefix(h), path.posix.dirname(rel), path.basename(v)); mkdirp(path.dirname(t2)); fs.copyFileSync(v, t2); count++; }
+    }
   }
 }
 

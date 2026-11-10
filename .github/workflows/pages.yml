@@ -27,7 +27,8 @@ jobs:
         with:
           node-version: 22
 
-      # base_path is "/fortis-realty" for a project site and "" when a custom domain is configured
+      # base_path is "/fortis-realty" for a project site and "" when a custom domain is configured;
+      # origin is the public origin (e.g. https://fortis.frel.cloud). Framer builds absolute URLs from it.
       - name: Configure Pages
         id: pages
         uses: actions/configure-pages@v5
@@ -36,6 +37,7 @@ jobs:
         run: node build.mjs
         env:
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          ORIGIN: ${{ steps.pages.outputs.origin }}
 
       - name: Smoke test the build
         run: |

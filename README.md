@@ -3,7 +3,7 @@
 Company profile & property platform for **Fortis Realty**: listing catalog (21 units), survey booking / contact
 form (sends to WhatsApp), Instagram feed (Elfsight), mortgage (KPR) calculator, Indonesian / English toggle.
 
-Live site: <https://smittywerbenn.github.io/fortis-realty/>
+Live site: <https://fortis.frel.cloud/>
 
 ## How it is built
 
@@ -23,8 +23,8 @@ plus the Fortis layer on top (`fortis/`). GitHub Pages serves exactly that, pre-
 
 ```bash
 npm run dev          # http://localhost:8080  (live layer, no build)
-npm run build        # dist/ for a project site at /fortis-realty
-npm run build:root   # dist/ for a domain root (custom domain)
+npm run build        # dist/ for a project site at /fortis-realty (ORIGIN defaults to http://localhost:8090)
+npm run build:root   # dist/ for a domain root (set ORIGIN=https://your-domain)
 BASE_PATH=/fortis-realty npm run preview   # http://localhost:8090/fortis-realty/
 ```
 
