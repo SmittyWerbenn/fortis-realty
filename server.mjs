@@ -1,6 +1,7 @@
 // Jalankan: node server.mjs   -> buka http://localhost:8080
 import http from 'http'; import fs from 'fs'; import path from 'path';
 import { fileURLToPath } from 'url';
+import { brandHead } from './head.mjs';
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'full');
 const FORTIS = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fortis');
 const PORT = process.env.PORT || 8080;
@@ -9,11 +10,12 @@ const MIME = {'.html':'text/html','.js':'text/javascript','.mjs':'text/javascrip
  '.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.svg':'image/svg+xml','.webp':'image/webp','.avif':'image/avif',
  '.woff2':'font/woff2','.woff':'font/woff','.mp4':'video/mp4','.gif':'image/gif'};
 const isText = e => ['.html','.js','.mjs','.css','.json'].includes(e);
-function rewrite(s, origin){
+function rewrite(s, origin, route){
   for (const h of hosts) {
     const to = h === 'lumura.framer.website' ? origin + '/' : origin + '/' + h + '/';
     s = s.split('https://'+h+'/').join(to).split('//'+h+'/').join(to.slice(to.indexOf('//')));
   }
+  s = brandHead(s, { origin, base: '', route: route || '/' });
   s = s.split('https://api.framer.com/').join(origin + '/__blocked/').split('https://events.framer.com/').join(origin + '/__blocked/');
   s = s.replace(/<link[^>]*rel="(?:shortcut )?icon"[^>]*>/g,'').replace(/<link[^>]*rel="apple-touch-icon"[^>]*>/g,'');
   s = s.replace('</head>','<link rel="icon" type="image/png" sizes="64x64" href="/__fortis/favicon.png"><link rel="apple-touch-icon" href="/__fortis/apple-touch-icon.png"><link rel="stylesheet" href="/__fortis/fortis.css"><script>if(location.pathname.replace(/[/]+$/,"")==="/project")document.documentElement.classList.add("fr-proj")</script><script defer src="/__fortis/fortis.js"></script><style>#__framer-badge-container,.__framer-badge{display:none!important}</style></head>');
@@ -46,7 +48,7 @@ http.createServer((req,res)=>{
   let e = path.extname(f); if (!MIME[e]) { const h = fs.readFileSync(f).subarray(0,200).toString('utf8').trimStart().toLowerCase(); if (h.startsWith('<!doctype html')||h.startsWith('<html')) e='.html'; }
   const type = MIME[e] || 'application/octet-stream';
   const headers = {'Content-Type':type+(isText(e)?'; charset=utf-8':''),'Access-Control-Allow-Origin':'*','Content-Disposition':'inline'};
-  if (isText(e)) { res.writeHead(200,headers); return res.end(rewrite(fs.readFileSync(f,'utf8'), 'http://'+req.headers.host)); }
+  if (isText(e)) { res.writeHead(200,headers); return res.end(rewrite(fs.readFileSync(f,'utf8'), 'http://'+req.headers.host, pn)); }
   const size = fs.statSync(f).size, range = req.headers.range;
   if (range) { const [a,b]=range.replace('bytes=','').split('-'); const s=+a, en=b?+b:size-1;
     res.writeHead(206,{...headers,'Content-Range':`bytes ${s}-${en}/${size}`,'Accept-Ranges':'bytes','Content-Length':en-s+1}); return fs.createReadStream(f,{start:s,end:en}).pipe(res); }

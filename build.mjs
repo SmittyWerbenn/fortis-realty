@@ -10,6 +10,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { brandHead } from './head.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.join(ROOT, 'full');
@@ -40,8 +41,9 @@ const EMAIL = /([A-Za-z0-9._%+-]+)@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{
 function protectEmails(html) {
   return html.split(/(<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>)/i).map((part, i) => (i % 2 ? part : part.replace(EMAIL, '$1&#64;$2'))).join('');
 }
-function injectHtml(s) {
+function injectHtml(s, route) {
   s = rewrite(s);
+  s = brandHead(s, { origin: ORIGIN, base: BASE, route });
   s = s.replace(/<link[^>]*rel="(?:shortcut )?icon"[^>]*>/g, '').replace(/<link[^>]*rel="apple-touch-icon"[^>]*>/g, '');
   s = s.replace('</head>',
     `<link rel="icon" type="image/png" sizes="64x64" href="${BASE}/__fortis/favicon.png"><link rel="apple-touch-icon" href="${BASE}/__fortis/apple-touch-icon.png">` +
@@ -83,7 +85,7 @@ const RENDERED = path.join(SRC, '_rendered');
 for (const f of walk(RENDERED)) {
   if (path.basename(f) !== 'index.html') continue;
   const rel = path.relative(RENDERED, f).split(path.sep).join('/');
-  const html = injectHtml(fs.readFileSync(f, 'utf8'));
+  const html = injectHtml(fs.readFileSync(f, 'utf8'), '/' + rel.replace(/index\.html$/, ''));
   write(path.join(OUT, rel), html);
   if (rel === '404/index.html') write(path.join(OUT, '404.html'), html); // GitHub Pages fallback page
   count++;
