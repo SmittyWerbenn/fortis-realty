@@ -1,18 +1,13 @@
 // Fortis Realty <head> branding, applied to the template's HTML before it is served (server.mjs) or published (build.mjs).
 // Without this the browser tab says "Lumura – Interior Design …" until the page's JavaScript has run.
 export const SITE = 'Fortis Realty';
-export const TITLE = 'Fortis Realty – Konsultan &amp; Broker Properti Tepercaya';
+export const TITLE = 'Fortis Realty';
 export const DESC = 'Fortis Realty – konsultan dan broker properti tepercaya. Temukan rumah, ruko, apartemen, dan kavling pilihan dengan legalitas jelas, proses transparan, dan pendampingan agen profesional.';
 
-export function brandHead(html, { origin = '', base = '', route = '/' } = {}) {
+export function brandHead(html, { origin = '', base = '' } = {}) {
   if (!html.includes('<title>')) return html;
-  const isProject = /^\/project\/?$/.test(route);
   let title = TITLE;
-  html = html.replace(/<title>([^<]*)<\/title>/, (m, t) => {
-    const mm = t.match(/^(.*) - Lumura$/);              // detail pages: "<name> - Lumura"
-    title = mm ? `${mm[1]} - ${SITE}` : (isProject ? `Properti Kami – ${SITE}` : TITLE);
-    return `<title>${title}</title>`;
-  });
+  html = html.replace(/<title>([^<]*)<\/title>/, () => `<title>${TITLE}</title>`);   // every page: just "Fortis Realty"
   const set = (re, value) => { html = html.replace(re, `$1${value}$2`); };
   set(/(<meta property="og:title" content=")[^"]*(")/, title);
   set(/(<meta name="twitter:title" content=")[^"]*(")/, title);
@@ -27,4 +22,4 @@ export function brandHead(html, { origin = '', base = '', route = '/' } = {}) {
 
 // Framer's runtime rewrites document.title with the template's own title shortly after load ("Lumura – …").
 // This tiny script (runs first, in <head>) puts the Fortis title straight back, before it is ever painted in the tab.
-export const TITLE_GUARD = `(function(){var t=document.querySelector("title");if(!t)return;window.__frTitle=document.title;var busy=false;function fix(){if(busy)return;var c=document.title,n=c.replace(/ - Lumura$/,' - Fortis Realty');if(/Lumura/.test(n))n=window.__frTitle;if(n!==c){busy=true;document.title=n;busy=false}}new MutationObserver(fix).observe(document.head,{childList:true,characterData:true,subtree:true})})()`;
+export const TITLE_GUARD = `(function(){var t=document.querySelector("title");if(!t)return;window.__frTitle=document.title;var busy=false;function fix(){if(busy)return;var c=document.title,n=c;if(n!==window.__frTitle)n=window.__frTitle;if(n!==c){busy=true;document.title=n;busy=false}}new MutationObserver(fix).observe(document.head,{childList:true,characterData:true,subtree:true})})()`;

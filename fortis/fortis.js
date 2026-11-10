@@ -256,8 +256,7 @@ function textSwap() {
     if (core) { const r = TS_RULES.find(x => x.all.includes(core)); if (r) v = v.replace(v.trim(), LANG === 'en' ? r.en : r.id); }
     if (v !== o) n.nodeValue = v;
   }
-  const dm = document.title.match(/^(.*) - (?:Lumura|Fortis Realty)$/);
-  const T = dm ? dm[1] + ' - Fortis Realty' : /^\/project\/?$/.test(ROUTE()) ? tr('Properti Kami') + ' – Fortis Realty' : tr('Fortis Realty – Konsultan & Broker Properti Tepercaya');
+    const T = 'Fortis Realty';
   window.__frTitle = T; if (document.title !== T) document.title = T;
   document.documentElement.lang = LANG;
 }
