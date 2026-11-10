@@ -459,3 +459,7 @@ html:not(.fr-ready) footer{visibility:hidden!important}
 
 /* /project photo reveal (centre -> sides) */
 .fr-pclip{clip-path:inset(0 50% 0 50%)}
+
+/* catalog cards: "WhatsApp" on desktop, "Hubungi Sales" on phones */
+.fr-wa-m{display:none}
+@media(max-width:767px){.fr-wa-d{display:none}.fr-wa-m{display:inline}}

@@ -135,7 +135,7 @@ const EN = {
   'Tipe': 'Type', 'Semua': 'All', 'Rumah Residensial': 'Residential House', 'Ruko Komersial': 'Commercial Shophouse', 'Apartemen': 'Apartment', 'Tanah/Kavling': 'Land / Plot',
   'Dijual': 'For Sale', 'Disewa': 'For Rent', 'Semua Lokasi': 'All Locations', 'Lokasi': 'Location',
   'Belum ada unit yang cocok dengan filter ini. Coba ubah kriteria pencarian.': 'No units match this filter yet. Try changing your search criteria.',
-  'Detail Unit': 'Unit Details', 'Detail unit': 'Unit details', 'Tutup': 'Close',
+  'Hubungi Sales': 'Contact Sales', 'Detail Unit': 'Unit Details', 'Detail unit': 'Unit details', 'Tutup': 'Close',
   'Sertifikat': 'Certificate', 'Luas Tanah': 'Land Area', 'Luas Bangunan': 'Building Area', 'Kamar Tidur': 'Bedrooms', 'Kamar Mandi': 'Bathrooms', 'Listrik': 'Electricity',
   'Booking Survey': 'Book a Survey', 'Simulasi KPR unit ini': 'Simulate mortgage for this unit',
   // facilities
@@ -511,7 +511,7 @@ function renderGrid() {
     <div class="fr-cbody"><div class="fr-tags"><span>${p.status === 'dijual' ? 'Dijual' : 'Disewa'}</span><span>${esc(p.loc)}</span></div>
     <h3>${esc(p.name)}</h3>
     <div class="fr-pmeta"><div class="fr-pprice">${priceHTML(p)}</div><div class="fr-pspec">${TYPES[p.type]} · ${ukuran(p)}${p.kt ? ' · ' + p.kt + ' KT' : ''}${p.km ? ' · ' + p.km + ' KM' : ''}</div></div>
-    <div class="fr-actions"><button class="fr-btn ghost" data-detail="${p.id}">Detail Unit</button><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}WhatsApp</a></div></div></article>`).join('')
+    <div class="fr-actions"><button class="fr-btn ghost" data-detail="${p.id}">Detail Unit</button><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}<span class="fr-wa-d">WhatsApp</span><span class="fr-wa-m">Hubungi Sales</span></a></div></div></article>`).join('')
     : '<div class="fr-empty">Belum ada unit yang cocok dengan filter ini. Coba ubah kriteria pencarian.</div>';
   i18nDom(); observeCardImages();
 }
