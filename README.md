@@ -7,11 +7,12 @@ Live site: <https://smittywerbenn.github.io/fortis-realty/>
 
 ## How it is built
 
-The site is a static export of a Framer template (`full/`) with a Fortis layer on top (`fortis/`):
+The site is the Fortis Realty website that runs locally on port 8080 (`npm run dev`): the page base in `full/`
+plus the Fortis layer on top (`fortis/`). GitHub Pages serves exactly that, pre-built:
 
 | Path | What it is |
 | --- | --- |
-| `full/` | Mirrored template pages and assets |
+| `full/` | Base pages and assets the site is built on |
 | `fortis/fortis.js`, `fortis/fortis.css` | Rebrand layer: catalog, forms, KPR, i18n, header, animations |
 | `fortis/img/` | Listing posters (`catalog-1…21.webp`), logo, favicon |
 | `server.mjs` | Local dev server (applies the layer on the fly) |
@@ -40,7 +41,3 @@ In the repository: **Settings → Pages → Build and deployment → Source: Git
 * `EMAIL`, `PHONE`, `ADDRESS` – contact details in the footer
 * Listing data (`const P = [...]`): prices, sizes and descriptions that are not on the posters are dummy values
 * `ELFSIGHT_APP_ID` – Instagram widget
-
-## Notes
-
-`full/` contains a third-party Framer template (Lumura). Make sure you hold a licence that allows publishing it.
