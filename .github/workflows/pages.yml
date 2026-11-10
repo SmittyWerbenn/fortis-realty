@@ -44,6 +44,8 @@ jobs:
           test -f dist/index.html
           test -f dist/project/index.html
           test -f dist/__fortis/fortis.js
+          test -f dist/__fortis/properties.json
+          test -f dist/admin/index.html
           grep -q "__fortis/fortis.js" dist/index.html
           echo "dist OK: $(find dist -type f | wc -l) files"
 

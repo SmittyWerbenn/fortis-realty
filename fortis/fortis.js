@@ -1,5 +1,5 @@
 /* Fortis Realty — rebrand layer for the existing site (keeps fonts, palette, hero layout & animations). */
-(() => {
+(async () => {
 'use strict';
 
 /* Base path: '' when served from a domain root, '/fortis-realty' on GitHub Pages (set by the build via window.__FR_BASE) */
@@ -45,6 +45,12 @@ const P = [
   { id: 20, name: "Summarecon Lakeview Residence", loc: "Summarecon Tangerang", city: "Tangerang", type: "rumah", status: "dijual", hot: false, price: 2000000000, from: true, lt: 120, lb: 160, kt: 3, km: 3, img: "catalog-20", cert: "SHGB", listrik: "4.400 VA", fac: ["Cicilan mulai 10 juta-an", "2 & 3 lantai", "Developer: Summarecon Tangerang", "View danau langsung"], facEn: ["Installments from 10 million", "2 & 3 floors", "Developer: Summarecon Tangerang", "Direct lake view"], desc: "Rumah dengan view danau langsung di Summarecon Tangerang. Pilihan 2 dan 3 lantai dengan cicilan mulai 10 juta-an.", descEn: "A home with a direct lake view in Summarecon Tangerang. 2- and 3-storey options with installments from around 10 million." },
   { id: 21, name: "Park Serpong Affordable Home", loc: "Serpong", city: "Tangerang Selatan", type: "rumah", status: "dijual", hot: true, price: 600000000, from: true, lt: 66, lb: 60, kt: 2, km: 2, img: "catalog-21", cert: "SHGB", listrik: "2.200 VA", fac: ["Cicilan mulai 4 juta-an", "2-3 lantai", "Developer: Lippoland (Park Serpong)", "Bebas PPN & subsidi DP"], facEn: ["Installments from 4 million", "2-3 floors", "Developer: Lippoland (Park Serpong)", "VAT-free & DP subsidy"], desc: "Fase baru rumah affordable di Park Serpong dari Lippoland. Bebas PPN dan subsidi DP dengan cicilan mulai 4 juta-an.", descEn: "A new phase of affordable homes in Park Serpong by Lippoland. VAT-free with a DP subsidy and installments from around 4 million." }
 ];
+/* The listings live in properties.json (edited from /admin). The array above is only an offline fallback. */
+try {
+  const ac = new AbortController(), to = setTimeout(() => ac.abort(), 4000);
+  const r = await fetch(U('/__fortis/properties.json'), { cache: 'no-cache', signal: ac.signal }); clearTimeout(to);
+  if (r.ok) { const j = await r.json(); if (Array.isArray(j) && j.length) P.splice(0, P.length, ...j.map(x => ({ fac: [], facEn: [], desc: '', descEn: '', ...x }))); }
+} catch (e) { /* keep fallback */ }
 // register the English text that travels with each listing
 P.forEach(p => { EN_LIST.push([p.desc, p.descEn]); p.fac.forEach((f, i) => EN_LIST.push([f, p.facEn[i]])); });
 function igCard(p) {

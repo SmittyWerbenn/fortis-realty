@@ -32,6 +32,8 @@ function find(pathname, search){
 }
 http.createServer((req,res)=>{
   const u = new URL(req.url,'http://x'); let pn = decodeURIComponent(u.pathname);
+  if (pn === '/admin') { res.writeHead(301,{Location:'/admin/'}); return res.end(); }
+  if (pn.startsWith('/admin/')) { const AD = path.join(path.dirname(fileURLToPath(import.meta.url)), 'admin'); const fp = path.join(AD, pn.slice(7) || 'index.html'); const ff = fs.existsSync(fp) && fs.statSync(fp).isDirectory() ? path.join(fp,'index.html') : fp; if (ff.startsWith(AD) && fs.existsSync(ff) && fs.statSync(ff).isFile()) { res.writeHead(200,{'Content-Type':(MIME[path.extname(ff)]||'application/octet-stream')+(isText(path.extname(ff))?'; charset=utf-8':''),'Cache-Control':'no-cache'}); return fs.createReadStream(ff).pipe(res); } res.writeHead(404); return res.end('not found'); }
   if (pn.startsWith('/__fortis/')) { const fp = path.join(FORTIS, pn.slice(10)); if (fp.startsWith(FORTIS) && fs.existsSync(fp) && fs.statSync(fp).isFile()) { res.writeHead(200,{'Content-Type':MIME[path.extname(fp)]||'application/octet-stream','Cache-Control':'no-cache'}); return fs.createReadStream(fp).pipe(res); } res.writeHead(404); return res.end('not found'); }
   let files = []; if (pn.startsWith('/__blocked/')) { res.writeHead(204,{'Access-Control-Allow-Origin':'*'}); return res.end(); }
   const first = pn.split('/')[1];

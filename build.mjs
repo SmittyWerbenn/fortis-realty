@@ -130,6 +130,14 @@ for (const f of walk(FORTIS)) {
   mkdirp(path.dirname(target)); fs.copyFileSync(f, target);
 }
 
+// 3b) the admin dashboard  ->  dist/admin/   (static app; reads/writes ../__fortis/properties.json through the GitHub API)
+const ADMIN = path.join(ROOT, 'admin');
+if (fs.existsSync(ADMIN)) for (const f of walk(ADMIN)) {
+  const target = path.join(OUT, 'admin', path.relative(ADMIN, f));
+  mkdirp(path.dirname(target)); fs.copyFileSync(f, target); count++;
+}
+write(path.join(OUT, 'robots.txt'), 'User-agent: *\nDisallow: /admin/\n');
+
 // 4) Pages housekeeping: do not run Jekyll (it would drop folders starting with "_")
 write(path.join(OUT, '.nojekyll'), '');
 
