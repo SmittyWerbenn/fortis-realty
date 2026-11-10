@@ -8,6 +8,7 @@
 // It reproduces what server.mjs does at request time (host rewriting, injecting the Fortis layer,
 // size-variant fallbacks) but once, ahead of time, so the result can be served by any static host.
 import fs from 'fs';
+import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { brandHead, TITLE_GUARD } from './head.mjs';
@@ -47,7 +48,7 @@ function injectHtml(s, route) {
   s = s.replace(/<link[^>]*rel="(?:shortcut )?icon"[^>]*>/g, '').replace(/<link[^>]*rel="apple-touch-icon"[^>]*>/g, '');
   s = s.replace('</head>',
     `<link rel="icon" type="image/png" sizes="64x64" href="${BASE}/__fortis/favicon.png"><link rel="apple-touch-icon" href="${BASE}/__fortis/apple-touch-icon.png">` +
-    `<link rel="stylesheet" href="${BASE}/__fortis/fortis.css">${HEAD_SCRIPT}<script>${TITLE_GUARD}</script><script defer src="${BASE}/__fortis/fortis.js"></script>` +
+    `<link rel="stylesheet" href="${BASE}/__fortis/fortis.css?v=${V_CSS}">${HEAD_SCRIPT}<script>${TITLE_GUARD}</script><script defer src="${BASE}/__fortis/fortis.js?v=${V_JS}"></script>` +
     `<style>#__framer-badge-container,.__framer-badge{display:none!important}</style></head>`);
   s = s.replace(/<script[^>]*(events\.framer\.com|framer\.com\/edit)[^>]*><\/script>/g, '');
   return protectEmails(s);
@@ -62,6 +63,9 @@ const RANGE_URL = '((v)=>{let h=btoa(unescape(encodeURIComponent(v.search))).rep
 function patchRange(js) { return js.replace(RANGE_CALL, (m, fn) => `a.searchParams.set(\`range\`,o);let s=await ${fn}(${RANGE_URL})`); }
 
 // ---- helpers ----
+// cache-busting: Cloudflare/browsers keep fortis.js / fortis.css for ~10 minutes, so the URL carries a content hash
+const ver = f => crypto.createHash('sha1').update(fs.readFileSync(path.join(FORTIS, f))).digest('hex').slice(0, 10);
+const V_JS = ver('fortis.js'), V_CSS = ver('fortis.css');
 const mkdirp = d => fs.mkdirSync(d, { recursive: true });
 function write(file, data) { mkdirp(path.dirname(file)); fs.writeFileSync(file, data); }
 function walk(dir) {
