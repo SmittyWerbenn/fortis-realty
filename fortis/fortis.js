@@ -369,13 +369,7 @@ function brandHero() {
   const tag = $('a[data-framer-name="Tag"]', hero);
   if (tag) {
     set($('p', tag), tr('Jelajahi Listing Properti')); setLink(tag, tr('Jelajahi Listing Properti'), '/#katalog');
-    if (!$('.fr-hero-cta', hero)) {
-      const b = document.createElement('a'); b.className = 'fr-hero-cta'; b.href = U('/#kpr'); b.dataset.frLink = '/#kpr'; b.textContent = tr('Hitung KPR / Booking Survey');
-      b.addEventListener('click', e => { e.preventDefault(); goTo('kpr'); });
-      const blk = tag.parentElement; b.style.cssText += ';margin:12px 0 0;align-self:flex-start;width:max-content';
-      blk.insertAdjacentElement('afterend', b);
-    }
-    const cta = $('.fr-hero-cta', hero); if (cta && cta.textContent !== tr('Hitung KPR / Booking Survey')) cta.textContent = tr('Hitung KPR / Booking Survey');
+    $$('.fr-hero-cta', hero).forEach(e => e.remove());   // the secondary hero button was removed
   }
   $$('.fr-badge-hero', hero).forEach(e => e.remove());
   const lab = $$('p', $('[data-framer-name="Stats"]', hero) || hero).filter(p => /Projects completed|Client Satisfaction|Unit terjual|Klien puas|Units sold|Happy clients/.test(p.textContent));
