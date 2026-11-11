@@ -494,7 +494,7 @@ function sections() {
 <section class="fr-sec fr-light" id="instagram" data-fr="1"><div class="fr-wrap">
   <div class="fr-head"><div><div class="fr-tag">Media</div><h2 class="fr-h2">Ikuti update &amp; listing terbaru di Instagram</h2></div></div>
   <div class="fr-ig" id="fr-ig">${IG.map(igCard).join('')}</div>
-  <div class="fr-center"><a class="fr-btn fr-follow" href="${CFG.IG_URL}" target="_blank" rel="noopener"><span class="fr-follow-ico">${ICO.ig}</span><span class="fr-follow-txt">Follow @${CFG.IG_USER} di Instagram</span><span class="fr-follow-arr" aria-hidden="true">&rarr;</span></a></div>
+  <div class="fr-center"><a class="fr-btn fr-follow" href="${CFG.IG_URL}" target="_blank" rel="noopener"><img class="fr-follow-ico" src="${U('/__fortis/instagram.png')}" alt="" width="46" height="46"><span class="fr-follow-txt">Follow @${CFG.IG_USER} di Instagram</span><span class="fr-follow-arr" aria-hidden="true">&rarr;</span></a></div>
 </div></section>
 
 <div class="fr-modal" id="fr-modal" role="dialog" aria-modal="true" aria-label="Detail unit"></div>`;
