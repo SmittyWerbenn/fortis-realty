@@ -135,7 +135,7 @@ const EN = {
   'Tipe': 'Type', 'Semua': 'All', 'Rumah Residensial': 'Residential House', 'Ruko Komersial': 'Commercial Shophouse', 'Apartemen': 'Apartment', 'Tanah/Kavling': 'Land / Plot',
   'Dijual': 'For Sale', 'Disewa': 'For Rent', 'Semua Lokasi': 'All Locations', 'Lokasi': 'Location',
   'Belum ada unit yang cocok dengan filter ini. Coba ubah kriteria pencarian.': 'No units match this filter yet. Try changing your search criteria.',
-  'Hubungi Sales': 'Contact Sales', 'Detail Unit': 'Unit Details', 'Detail unit': 'Unit details', 'Tutup': 'Close',
+  'Hubungi Sales': 'Contact Sales', 'Detail Unit': 'Unit Details', 'Detail unit': 'Unit details', 'Tutup': 'Close', 'Kembali': 'Back',
   'Sertifikat': 'Certificate', 'Luas Tanah': 'Land Area', 'Luas Bangunan': 'Building Area', 'Kamar Tidur': 'Bedrooms', 'Kamar Mandi': 'Bathrooms', 'Listrik': 'Electricity',
   'Booking Survey': 'Book a Survey', 'Simulasi KPR unit ini': 'Simulate mortgage for this unit',
   // facilities
@@ -593,7 +593,7 @@ function setupReveal() {
 function openModal(id) {
   const p = P.find(x => x.id === id); if (!p) return;
   const m = $('#fr-modal');
-  m.innerHTML = `<div class="fr-mbox"><button class="fr-mclose" aria-label="Tutup">×</button><img src="${IMG(p.img)}" alt="${esc(p.name)}">
+  m.innerHTML = `<div class="fr-mbar"><button class="fr-back" data-back type="button"><span aria-hidden="true">←</span> <span data-fr-t>Kembali</span></button></div><div class="fr-mbox"><img src="${IMG(p.img)}" alt="${esc(p.name)}">
   <div class="fr-mcont"><div class="fr-badges" style="position:static"><span class="fr-badge ${p.status === 'disewa' ? 'rent' : ''}" style="border:1px solid #0f0e0e33">${p.status === 'dijual' ? 'Dijual' : 'Disewa'}</span>${p.hot ? '<span class="fr-badge hot">' + ICO.fire + 'Hot Deal</span>' : ''}</div>
   <h3>${esc(p.name)}</h3><div class="fr-loc" style="margin:0">${ICO.pin}${esc(p.loc)}, ${esc(p.city)}</div>
   <div class="fr-price">${priceHTML(p)}</div><p>${esc(p.desc)}</p>
@@ -601,9 +601,13 @@ function openModal(id) {
   <div class="fr-fac">${p.fac.map(f => `<span>${esc(f)}</span>`).join('')}</div>
   <div class="fr-actions"><button class="fr-btn" data-book="${p.id}">Booking Survey</button><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}WhatsApp</a></div>
   ${p.status === 'dijual' ? `<button class="fr-btn ghost" data-kpr="${p.id}">Simulasi KPR unit ini</button>` : ''}</div></div>`;
-  i18nDom(); m.classList.add('open'); document.documentElement.style.overflow = 'hidden'; $('.fr-mclose', m).focus();
+  i18nDom(); m.classList.add('open'); m.scrollTop = 0; document.documentElement.classList.add('fr-unit-ready'); document.documentElement.style.overflow = 'hidden';
 }
-function closeModal() { $('#fr-modal').classList.remove('open'); document.documentElement.style.overflow = ''; }
+function closeModal() { $('#fr-modal').classList.remove('open'); const h = document.documentElement; h.classList.remove('fr-unitpage', 'fr-unit-ready'); h.style.overflow = ''; if (/[?&]unit=/.test(location.search)) history.replaceState(null, '', U('/') + location.hash); }
+function goBack() {
+  let same = false; try { same = document.referrer && new URL(document.referrer).origin === location.origin; } catch {}
+  if (same && history.length > 1) history.back(); else location.href = U('/#katalog');
+}
 
 function goTo(id) { const el = document.getElementById(id); if (el) { closeModal(); el.scrollIntoView({ behavior: 'smooth', block: 'start' }); } else location.href = U('/#' + id); }
 
@@ -791,10 +795,10 @@ window.addEventListener('click', e => {
   const ft = t.closest('[data-ft]'), fs = t.closest('[data-fs]');
   if (ft) { state.type = ft.dataset.ft; $$('[data-ft]').forEach(b => b.setAttribute('aria-pressed', b === ft)); renderGrid(); return; }
   if (fs) { state.status = fs.dataset.fs; $$('[data-fs]').forEach(b => b.setAttribute('aria-pressed', b === fs)); renderGrid(); return; }
-  const d = t.closest('[data-detail]'); if (d) return openModal(+d.dataset.detail);
+  const d = t.closest('[data-detail]'); if (d) { e.preventDefault(); location.href = U(`/?unit=${+d.dataset.detail}`); return; }
   const b = t.closest('[data-book]'); if (b) { if (window.__frBook) window.__frBook(b.dataset.book); goTo('kontak'); return; }
   const k = t.closest('[data-kpr]'); if (k) { window.__frSetKpr(P.find(x => x.id === +k.dataset.kpr).price); goTo('kpr'); return; }
-  if (t.closest('.fr-mclose') || t === $('#fr-modal')) return closeModal();
+  if (t.closest('[data-back]')) { e.preventDefault(); return goBack(); }
   const lg = t.closest && t.closest('[data-lang]');
   if (lg) { e.preventDefault(); e.stopImmediatePropagation(); setLang(lg.dataset.lang); return; }
   const go = t.closest && t.closest('[data-fr-go]');
@@ -811,7 +815,7 @@ document.addEventListener('change', e => { if (e.target.id === 'fr-loc') { state
 // the first nav item was a dropdown ("Pages") in the template; it is now a plain link, so swallow its hover/focus events
 ['pointerover', 'pointerenter', 'mouseover', 'mouseenter', 'pointermove', 'mousemove', 'focusin', 'touchstart'].forEach(t =>
   window.addEventListener(t, e => { if (e.target.closest && e.target.closest('nav [class*="gf9md2"]')) e.stopImmediatePropagation(); }, true));
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#fr-modal.open')) goBack(); });
 
 /* ---- boot: wait for Framer hydration, then keep branding stable ---- */
 addEventListener('scroll', () => document.documentElement.classList.toggle('fr-scrolled', scrollY > 30), { passive: true });
@@ -819,12 +823,13 @@ let timer;
 function apply() {
   try { if (ROUTE() === '/' || ROUTE() === '/index.html') { mount(); brandHero(); } else if (/^\/project\/?$/.test(ROUTE())) brandProjects(); brandChrome(); textSwap(); i18nDom(); document.documentElement.classList.add('fr-ready'); } catch (err) { console.error('[fortis]', err); }
 }
+if (/[?&]unit=\d+/.test(location.search)) { document.documentElement.classList.add('fr-unitpage'); setTimeout(() => document.documentElement.classList.remove('fr-unitpage'), 8000); }
 function boot() {
   setTimeout(() => document.documentElement.classList.add('fr-ready'), 4000);
   setTimeout(() => {
     apply();
     if (location.hash && $(location.hash)) setTimeout(() => $(location.hash).scrollIntoView(), 100);
-    const uid = +new URLSearchParams(location.search).get('unit'); if (uid && $('#fr-grid')) setTimeout(() => { $('#katalog').scrollIntoView(); openModal(uid); }, 400);
+    const uid = +new URLSearchParams(location.search).get('unit'); if (uid && $('#fr-grid')) setTimeout(() => openModal(uid), 100);
     new MutationObserver(() => { clearTimeout(timer); timer = setTimeout(apply, 40); }).observe(document.body, { childList: true, subtree: true, characterData: true });
   }, 1200);
 }
