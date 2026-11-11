@@ -181,7 +181,7 @@ const EN = {
   'Nomor tidak valid, contoh: 0812xxxxxxxx.': 'Invalid number, e.g. 0812xxxxxxxx.', 'Pilih layanan yang Anda butuhkan.': 'Select the service you need.',
   'Pilih unit properti.': 'Select a property unit.', 'Pilih tanggal.': 'Select a date.', 'Tanggal sudah lewat.': 'That date has passed.', 'Pilih waktu.': 'Select a time.',
   // chrome
-  'Fortis Realty — Konsultan & Broker Properti Pilihan Anda': 'Fortis Realty — Your Trusted Property Consultant & Broker',
+  'Fortis Realty — Konsultan & Broker Properti': 'Fortis Realty — Property Consultant & Broker',
   'Ikuti kami:': 'Follow us:', 'Tautan Cepat': 'Quick Links',
   'Temukan Properti Impian Anda Sekarang': 'Find Your Dream Property Now',
   '/bulan': '/month', '/tahun': '/year',
@@ -243,7 +243,7 @@ function setLang(l) {
 
 /* ================= global rebrand (all pages) ================= */
 const TS_RULES = [
-  { from: ['Transforming spaces into lasting expressions of beauty, comfort, and quality.', 'Transforming spaces into lasting expressions of beauty, comfort, and quality'], id: 'Fortis Realty — Konsultan & Broker Properti Pilihan Anda', en: 'Fortis Realty — Your Trusted Property Consultant & Broker' },
+  { from: ['Transforming spaces into lasting expressions of beauty, comfort, and quality.', 'Transforming spaces into lasting expressions of beauty, comfort, and quality'], id: 'Fortis Realty — Konsultan & Broker Properti', en: 'Fortis Realty — Property Consultant & Broker' },
   { from: ['Follow us on:', 'Follow us on'], id: 'Ikuti kami:', en: 'Follow us:' },
   { from: ['Quick Link'], id: 'Tautan Cepat', en: 'Quick Links' },
   { from: ['Others Link'], id: 'Lainnya', en: 'More' },
