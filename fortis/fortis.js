@@ -650,7 +650,7 @@ function openModal(id) {
       ${spec.length ? `<div class="fr-dspec">${spec.map(([l, v]) => `<div><strong>${v}</strong><span>${l}</span></div>`).join('')}</div>` : ''}
       <div class="fr-dl"><div><b>Tipe</b>${TYPES[p.type]}</div><div><b>Sertifikat</b>${p.cert}</div><div><b>Listrik</b>${p.listrik}</div><div><b>Status</b>${st}</div></div>
       <div class="fr-fac">${p.fac.map(f => `<span>${esc(f)}</span>`).join('')}</div>
-      <div class="fr-actions"><button class="fr-btn" data-book="${p.id}">Booking Survey</button>${p.status === 'dijual' ? `<button class="fr-btn" data-kpr="${p.id}">Simulasi KPR unit ini</button>` : ''}<a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}WhatsApp</a></div>
+      <div class="fr-actions"><button class="fr-btn" data-book="${p.id}">Booking Survey</button>${p.status === 'dijual' ? `<button class="fr-btn" data-kpr="${p.id}">Simulasi KPR unit ini</button>` : ''}<a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}Hubungi Sales</a></div>
     </div>
    </div>
    <section class="fr-dsec"><div class="fr-tag">Galeri</div><h2 class="fr-h2">Galeri Properti</h2>
@@ -658,7 +658,7 @@ function openModal(id) {
    <section class="fr-dsec"><div class="fr-tag">Rekomendasi</div><h2 class="fr-h2">Properti Lainnya</h2>
     <div class="fr-rel">${rel.map(r => `<a class="fr-rel-i" href="${U('/?unit=' + r.id)}" data-fr-go="/?unit=${r.id}"><div class="fr-rel-img"><img src="${IMG(r.img)}" alt="${esc(r.name)}" loading="lazy"></div><div class="fr-rel-b"><h3>${esc(r.name)}</h3><div class="fr-loc" style="margin:0">${ICO.pin}${esc(r.loc)}</div><div class="fr-rel-p">${priceHTML(r)}</div></div></a>`).join('')}</div></section>
   </div>
-  <div class="fr-dbar"><div><small>${p.from ? 'harga mulai' : ''}</small><b>${rp(p.price)}${p.per || ''}</b></div><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}WhatsApp</a></div>`;
+  <div class="fr-dbar"><div><small>${p.from ? 'harga mulai' : ''}</small><b>${rp(p.price)}${p.per || ''}</b></div><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}Hubungi Sales</a></div>`;
   i18nDom(); m.classList.add('open'); m.scrollTop = 0; document.documentElement.classList.add('fr-unit-ready'); document.documentElement.style.overflow = 'hidden';
 }
 function closeModal() { $('#fr-modal').classList.remove('open'); const h = document.documentElement; h.classList.remove('fr-unitpage', 'fr-unit-ready'); h.style.overflow = ''; if (/[?&]unit=/.test(location.search)) history.replaceState(null, '', U('/') + location.hash); }
