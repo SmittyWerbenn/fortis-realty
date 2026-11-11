@@ -605,3 +605,6 @@ html.fr-unitpage{background:var(--fr-cream)}
   .fr-dbar .fr-btn{flex:none;padding:0 18px 0 0}
   .fr-lb{padding:56px 12px}
 }
+
+.fr-dinfo .fr-actions .fr-btn{flex:0 0 auto}
+@media(max-width:480px){.fr-dinfo .fr-actions{flex-direction:column;align-items:stretch}.fr-dinfo .fr-actions .fr-btn{width:100%}#fr-modal .fr-dinfo .fr-actions .fr-btn:not(.wa)::after{margin-left:auto!important}}

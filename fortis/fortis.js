@@ -650,8 +650,7 @@ function openModal(id) {
       ${spec.length ? `<div class="fr-dspec">${spec.map(([l, v]) => `<div><strong>${v}</strong><span>${l}</span></div>`).join('')}</div>` : ''}
       <div class="fr-dl"><div><b>Tipe</b>${TYPES[p.type]}</div><div><b>Sertifikat</b>${p.cert}</div><div><b>Listrik</b>${p.listrik}</div><div><b>Status</b>${st}</div></div>
       <div class="fr-fac">${p.fac.map(f => `<span>${esc(f)}</span>`).join('')}</div>
-      <div class="fr-actions"><button class="fr-btn" data-book="${p.id}">Booking Survey</button><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}WhatsApp</a></div>
-      ${p.status === 'dijual' ? `<button class="fr-btn ghost" data-kpr="${p.id}">Simulasi KPR unit ini</button>` : ''}
+      <div class="fr-actions"><button class="fr-btn" data-book="${p.id}">Booking Survey</button>${p.status === 'dijual' ? `<button class="fr-btn" data-kpr="${p.id}">Simulasi KPR unit ini</button>` : ''}<a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}WhatsApp</a></div>
     </div>
    </div>
    <section class="fr-dsec"><div class="fr-tag">Galeri</div><h2 class="fr-h2">Galeri Properti</h2>
