@@ -181,7 +181,7 @@ const EN = {
   // chrome
   'Fortis Realty — Konsultan & Broker Properti Pilihan Anda': 'Fortis Realty — Your Trusted Property Consultant & Broker',
   'Ikuti kami:': 'Follow us:', 'Tautan Cepat': 'Quick Links',
-  'Temukan Rumah Impian Anda Sekarang': 'Find Your Dream Home Now',
+  'Temukan Properti Impian Anda Sekarang': 'Find Your Dream Property Now',
   '/bulan': '/month', '/tahun': '/year',
   'Fortis Realty – Konsultan & Broker Properti Tepercaya': 'Fortis Realty – Trusted Property Consultant & Broker'
 };
@@ -246,7 +246,7 @@ const TS_RULES = [
   { from: ['Quick Link'], id: 'Tautan Cepat', en: 'Quick Links' },
   { from: ['Others Link'], id: 'Lainnya', en: 'More' },
   { from: ['Contact us'], id: 'Kontak', en: 'Contact' },
-  { from: ['Let’s Bring Your Ideas to Life', "Let's Bring Your Ideas to Life", 'Wujudkan Properti Impian Anda', 'Turn Your Dream Property into Reality'], id: 'Temukan Rumah Impian Anda Sekarang', en: 'Find Your Dream Home Now' }
+  { from: ['Let’s Bring Your Ideas to Life', "Let's Bring Your Ideas to Life", 'Wujudkan Properti Impian Anda', 'Turn Your Dream Property into Reality'], id: 'Temukan Properti Impian Anda Sekarang', en: 'Find Your Dream Property Now' }
 ];
 TS_RULES.forEach(r => { r.all = [...r.from, r.id, r.en].map(x => x.toLowerCase()); });
 function textSwap() {
