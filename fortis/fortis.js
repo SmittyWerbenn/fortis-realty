@@ -130,6 +130,14 @@ const EN = {
   'Properti Kami': 'Our Properties',
   'Koleksi hunian, ruko, apartemen, dan lahan pilihan dari Fortis Realty, dengan legalitas jelas, proses transparan, dan pendampingan agen profesional.': 'A selection of homes, shophouses, apartments, and land from Fortis Realty, with clear legal status, a transparent process, and professional agent support.',
   // catalog
+  'Tentang Kami': 'About Us', 'Mitra properti primer': 'Your primary', 'yang Anda percaya': 'property partner',
+  'Fortis Realty adalah agen penjualan properti primer yang bekerja sama langsung dengan developer ternama, melayani Gading Serpong, BSD, dan sekitarnya.': 'Fortis Realty is a primary-market property sales agency working directly with leading developers, serving Gading Serpong, BSD, and surrounding areas.',
+  'Kami mendampingi Anda mulai dari memilih unit hingga serah terima kunci: informasi yang jelas, proses yang transparan, dan agen yang memahami kawasan. Setiap listing berasal dari developer resmi, sehingga Anda mendapatkan unit baru dengan legalitas yang dapat dipertanggungjawabkan.': 'We guide you from choosing a unit to receiving the keys: clear information, a transparent process, and agents who know the area. Every listing comes from an official developer, so you get a brand-new unit with legalities you can rely on.',
+  'Listing Primer Resmi': 'Official Primary Listings', 'Unit baru langsung dari developer mitra, dengan informasi harga dan legalitas yang jelas.': 'New units straight from partner developers, with clear pricing and legal information.',
+  'Pendampingan Menyeluruh': 'End-to-End Guidance', 'Dari konsultasi, survei lokasi, simulasi KPR, hingga serah terima kunci.': 'From consultation and site surveys to mortgage simulation and key handover.',
+  'Paham Kawasan': 'Local Expertise', 'Fokus di Gading Serpong, BSD, dan sekitarnya sehingga rekomendasi kami relevan dan terukur.': 'Focused on Gading Serpong, BSD, and surroundings, so our recommendations are relevant and well-founded.',
+  'Developer Mitra': 'Partner Developers', 'Kawasan Utama': 'Main Areas', 'Properti Primer': 'Primary Properties', 'Gading Serpong & BSD': 'Gading Serpong & BSD',
+  'Siap menemukan hunian Anda?': 'Ready to find your home?', 'Ceritakan kebutuhan Anda, agen kami siap membantu.': 'Tell us what you need and our agents are ready to help.', 'Hubungi Kami via WhatsApp': 'Chat with Us on WhatsApp',
   'Katalog Properti': 'Property Catalog', 'Listing properti': 'Property listings', 'pilihan kami': 'selected for you',
   'Unit terkurasi dengan legalitas jelas. Filter berdasarkan tipe, status, dan lokasi, lalu hubungi agen langsung via WhatsApp.': 'Curated units with clear legal status. Filter by type, status, and location, then contact an agent directly via WhatsApp.',
   'Tipe': 'Type', 'Semua': 'All', 'Rumah Residensial': 'Residential House', 'Ruko Komersial': 'Commercial Shophouse', 'Apartemen': 'Apartment', 'Tanah/Kavling': 'Land / Plot',
@@ -455,9 +463,35 @@ function brandProjects() {
 /* ================= sections ================= */
 const state = { type: 'all', status: 'all', loc: 'all', unit: '' };
 
+function aboutSec() {
+  const pill = [['01', 'Listing Primer Resmi', 'Unit baru langsung dari developer mitra, dengan informasi harga dan legalitas yang jelas.'],
+    ['02', 'Pendampingan Menyeluruh', 'Dari konsultasi, survei lokasi, simulasi KPR, hingga serah terima kunci.'],
+    ['03', 'Paham Kawasan', 'Fokus di Gading Serpong, BSD, dan sekitarnya sehingga rekomendasi kami relevan dan terukur.']];
+  const devs = ['Sinarmas Land', 'Summarecon', 'Paramount Land', 'Alam Sutera'];
+  return `<section class="fr-sec fr-light" id="tentang" data-fr="1"><div class="fr-wrap">
+  <div class="fr-head"><div><div class="fr-tag">Tentang Kami</div><h2 class="fr-h2">Mitra properti primer<br>yang Anda percaya</h2></div>
+  <p class="fr-lead">Fortis Realty adalah agen penjualan properti primer yang bekerja sama langsung dengan developer ternama, melayani Gading Serpong, BSD, dan sekitarnya.</p></div>
+  <div class="fr-about">
+    <div class="fr-about-media">
+      <div class="fr-about-img"><img src="${IMG('p1')}" alt="" loading="lazy"></div>
+      <div class="fr-about-img sm"><img src="${IMG('p5')}" alt="" loading="lazy"></div>
+      <div class="fr-about-quote"><img src="${CFG.LOGO}" alt="" width="34" height="34"><span>You Dream It, We Find It</span></div>
+    </div>
+    <div class="fr-about-body">
+      <p class="fr-about-p">Kami mendampingi Anda mulai dari memilih unit hingga serah terima kunci: informasi yang jelas, proses yang transparan, dan agen yang memahami kawasan. Setiap listing berasal dari developer resmi, sehingga Anda mendapatkan unit baru dengan legalitas yang dapat dipertanggungjawabkan.</p>
+      <div class="fr-pill">${pill.map(([n, t, d]) => `<div class="fr-pill-i"><span class="fr-pill-n">${n}</span><div><h3>${t}</h3><p>${d}</p></div></div>`).join('')}</div>
+      <div class="fr-devs"><b>Developer Mitra</b><div>${devs.map(d => `<span>${d}</span>`).join('')}</div></div>
+    </div>
+  </div>
+  <div class="fr-astats"><div><strong>4</strong><span>Developer Mitra</span></div><div><strong>2</strong><span>Kawasan Utama</span><small>Gading Serpong &amp; BSD</small></div><div><strong>100%</strong><span>Properti Primer</span></div></div>
+  <div class="fr-acta"><div><h3>Siap menemukan hunian Anda?</h3><p>Ceritakan kebutuhan Anda, agen kami siap membantu.</p></div><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa('Halo Fortis Realty, saya ingin berkonsultasi mengenai properti.')}">${ICO.wa}Hubungi Kami via WhatsApp</a></div>
+</div></section>
+
+`;
+}
 function sections() {
   const locs = [...new Set(P.map(p => p.loc))];
-  return `
+  return aboutSec() + `
 <section class="fr-sec fr-light" id="katalog" data-fr="1"><div class="fr-wrap">
   <div class="fr-head"><div><div class="fr-tag">Katalog Properti</div><h2 class="fr-h2">Listing properti<br>pilihan kami</h2></div>
   <p class="fr-lead">Unit terkurasi dengan legalitas jelas. Filter berdasarkan tipe, status, dan lokasi, lalu hubungi agen langsung via WhatsApp.</p></div>
@@ -577,7 +611,7 @@ function riseIn(el, delay = 0) {
 function setupReveal() {
   window.__frRevealReady = true;
   if (REDUCED || !('IntersectionObserver' in window)) return;
-  const sel = '#fr-root .fr-tag,#fr-root .fr-h2,#fr-root .fr-lead,#fr-root .fr-filters,#fr-root .fr-list,#fr-root .fr-panel,#fr-root .fr-center,#fr-root .fr-kpr,#fr-root .fr-post';
+  const sel = '#fr-root .fr-tag,#fr-root .fr-h2,#fr-root .fr-lead,#fr-root .fr-filters,#fr-root .fr-list,#fr-root .fr-panel,#fr-root .fr-center,#fr-root .fr-kpr,#fr-root .fr-post,#fr-root .fr-about,#fr-root .fr-astats,#fr-root .fr-acta';
   const io = new IntersectionObserver(es => es.forEach(en => {
     if (!en.isIntersecting) return;
     const el = en.target; io.unobserve(el);
