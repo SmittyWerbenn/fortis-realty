@@ -130,7 +130,7 @@ const EN = {
   'Properti Kami': 'Our Properties',
   'Koleksi hunian, ruko, apartemen, dan lahan pilihan dari Fortis Realty, dengan legalitas jelas, proses transparan, dan pendampingan agen profesional.': 'A selection of homes, shophouses, apartments, and land from Fortis Realty, with clear legal status, a transparent process, and professional agent support.',
   // catalog
-  'Tentang Kami': 'About Us', 'Mitra properti primer': 'Your primary', 'yang Anda percaya': 'property partner',
+  'Tentang Kami': 'About Us', 'Langkah Tepat': 'The Right Step', 'Menuju Properti Idaman': 'Toward Your Ideal Property',
   'Fortis Realty adalah agen penjualan properti primer yang bekerja sama langsung dengan developer ternama, melayani Gading Serpong, BSD, dan sekitarnya.': 'Fortis Realty is a primary-market property sales agency working directly with leading developers, serving Gading Serpong, BSD, and surrounding areas.',
   'Kami mendampingi Anda mulai dari memilih unit hingga serah terima kunci: informasi yang jelas, proses yang transparan, dan agen yang memahami kawasan. Setiap listing berasal dari developer resmi, sehingga Anda mendapatkan unit baru dengan legalitas yang dapat dipertanggungjawabkan.': 'We guide you from choosing a unit to receiving the keys: clear information, a transparent process, and agents who know the area. Every listing comes from an official developer, so you get a brand-new unit with legalities you can rely on.',
   'Listing Primer Resmi': 'Official Primary Listings', 'Unit baru langsung dari developer mitra, dengan informasi harga dan legalitas yang jelas.': 'New units straight from partner developers, with clear pricing and legal information.',
@@ -469,7 +469,7 @@ function aboutSec() {
     ['03', 'Paham Kawasan', 'Fokus di Gading Serpong, BSD, dan sekitarnya sehingga rekomendasi kami relevan dan terukur.']];
   const devs = ['Sinarmas Land', 'Summarecon', 'Paramount Land', 'Alam Sutera'];
   return `<section class="fr-sec fr-light" id="tentang" data-fr="1"><div class="fr-wrap">
-  <div class="fr-head"><div><div class="fr-tag">Tentang Kami</div><h2 class="fr-h2">Mitra properti primer<br>yang Anda percaya</h2></div>
+  <div class="fr-head"><div><div class="fr-tag">Tentang Kami</div><h2 class="fr-h2">Langkah Tepat<br>Menuju Properti Idaman</h2></div>
   <p class="fr-lead">Fortis Realty adalah agen penjualan properti primer yang bekerja sama langsung dengan developer ternama, melayani Gading Serpong, BSD, dan sekitarnya.</p></div>
   <div class="fr-about">
     <div class="fr-about-media">
