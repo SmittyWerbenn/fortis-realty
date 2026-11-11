@@ -467,7 +467,7 @@ function aboutSec() {
   const pill = [['01', 'Listing Primer Resmi', 'Unit baru langsung dari developer mitra, dengan informasi harga dan legalitas yang jelas.'],
     ['02', 'Pendampingan Menyeluruh', 'Dari konsultasi, survei lokasi, simulasi KPR, hingga serah terima kunci.'],
     ['03', 'Paham Kawasan', 'Fokus di Gading Serpong, BSD, dan sekitarnya sehingga rekomendasi kami relevan dan terukur.']];
-  const devs = ['Sinarmas Land', 'Summarecon', 'Paramount Land', 'Alam Sutera'];
+  const devs = [['Sinarmas Land', 'sinarmas'], ['Summarecon', 'summarecon'], ['Paramount Land', 'paramount'], ['Alam Sutera', 'alamsutera']];
   return `<section class="fr-sec fr-light" id="tentang" data-fr="1"><div class="fr-wrap">
   <div class="fr-head"><div><div class="fr-tag">Tentang Kami</div><h2 class="fr-h2">Langkah Tepat<br>Menuju Properti Idaman</h2></div>
   <p class="fr-lead">Fortis Realty adalah agen penjualan properti primer yang bekerja sama langsung dengan developer ternama, melayani Gading Serpong, BSD, dan sekitarnya.</p></div>
@@ -480,7 +480,7 @@ function aboutSec() {
     <div class="fr-about-body">
       <p class="fr-about-p">Kami mendampingi Anda mulai dari memilih unit hingga serah terima kunci: informasi yang jelas, proses yang transparan, dan agen yang memahami kawasan. Setiap listing berasal dari developer resmi, sehingga Anda mendapatkan unit baru dengan legalitas yang dapat dipertanggungjawabkan.</p>
       <div class="fr-pill">${pill.map(([n, t, d]) => `<div class="fr-pill-i"><span class="fr-pill-n">${n}</span><div><h3>${t}</h3><p>${d}</p></div></div>`).join('')}</div>
-      <div class="fr-devs"><b>Developer Mitra</b><div>${devs.map(d => `<span>${d}</span>`).join('')}</div></div>
+      <div class="fr-devs"><b>Developer Mitra</b><div>${devs.map(([n, f]) => `<span class="fr-dev" title="${n}"><img src="${U('/__fortis/img/partners/' + f + '.png')}" alt="${n}" loading="lazy"></span>`).join('')}</div></div>
     </div>
   </div>
   <div class="fr-astats"><div><strong>4</strong><span>Developer Mitra</span></div><div><strong>2</strong><span>Kawasan Utama</span><small>Gading Serpong &amp; BSD</small></div><div><strong>100%</strong><span>Properti Primer</span></div></div>
