@@ -881,8 +881,19 @@ document.addEventListener('keydown', e => { const l = $('#fr-lb.open'); if (l) {
 /* ---- boot: wait for Framer hydration, then keep branding stable ---- */
 addEventListener('scroll', () => document.documentElement.classList.toggle('fr-scrolled', scrollY > 30), { passive: true });
 let timer;
+
+/* ---- images fade in as they finish loading (instead of popping in) ---- */
+function smoothImages() {
+  $$('.fr-sec img, #fr-modal img, #fr-lb img').forEach(im => {
+    if (im.dataset.frSm) return; im.dataset.frSm = '1';
+    if (im.complete && im.naturalWidth) return;
+    im.classList.add('fr-imgwait');
+    const done = () => im.classList.remove('fr-imgwait');
+    im.addEventListener('load', done, { once: true }); im.addEventListener('error', done, { once: true }); setTimeout(done, 6000);
+  });
+}
 function apply() {
-  try { if (ROUTE() === '/' || ROUTE() === '/index.html') { mount(); brandHero(); } else if (/^\/project\/?$/.test(ROUTE())) brandProjects(); brandChrome(); textSwap(); i18nDom(); document.documentElement.classList.add('fr-ready'); } catch (err) { console.error('[fortis]', err); }
+  try { if (ROUTE() === '/' || ROUTE() === '/index.html') { mount(); brandHero(); } else if (/^\/project\/?$/.test(ROUTE())) brandProjects(); brandChrome(); textSwap(); i18nDom(); smoothImages(); document.documentElement.classList.add('fr-ready'); } catch (err) { console.error('[fortis]', err); }
 }
 if (/[?&]unit=\d+/.test(location.search)) { document.documentElement.classList.add('fr-unitpage'); setTimeout(() => document.documentElement.classList.remove('fr-unitpage'), 8000); }
 function boot() {

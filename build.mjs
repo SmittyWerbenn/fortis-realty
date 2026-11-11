@@ -11,7 +11,7 @@ import fs from 'fs';
 import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { brandHead, TITLE_GUARD, LOADER } from './head.mjs';
+import { brandHead, TITLE_GUARD, FADE } from './head.mjs';
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const SRC = path.join(ROOT, 'full');
@@ -48,7 +48,7 @@ function injectHtml(s, route) {
   s = s.replace(/<link[^>]*rel="(?:shortcut )?icon"[^>]*>/g, '').replace(/<link[^>]*rel="apple-touch-icon"[^>]*>/g, '');
   s = s.replace('</head>',
     `<link rel="icon" type="image/png" sizes="64x64" href="${BASE}/__fortis/favicon.png"><link rel="apple-touch-icon" href="${BASE}/__fortis/apple-touch-icon.png">` +
-    `<link rel="stylesheet" href="${BASE}/__fortis/fortis.css?v=${V_CSS}">${HEAD_SCRIPT}<script>${TITLE_GUARD}</script>${LOADER}<script defer src="${BASE}/__fortis/fortis.js?v=${V_JS}"></script>` +
+    `<link rel="stylesheet" href="${BASE}/__fortis/fortis.css?v=${V_CSS}">${HEAD_SCRIPT}<script>${TITLE_GUARD}</script>${FADE}<script defer src="${BASE}/__fortis/fortis.js?v=${V_JS}"></script>` +
     `<style>#__framer-badge-container,.__framer-badge{display:none!important}</style></head>`);
   s = s.replace(/<script[^>]*(events\.framer\.com|framer\.com\/edit)[^>]*><\/script>/g, '');
   return protectEmails(s);

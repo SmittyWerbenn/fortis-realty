@@ -608,3 +608,8 @@ html.fr-unitpage{background:var(--fr-cream)}
 
 .fr-dinfo .fr-actions .fr-btn{flex:0 0 auto}
 @media(max-width:480px){.fr-dinfo .fr-actions{flex-direction:column;align-items:stretch}.fr-dinfo .fr-actions .fr-btn{width:100%}#fr-modal .fr-dinfo .fr-actions .fr-btn:not(.wa)::after{margin-left:auto!important}}
+
+/* smooth image loading */
+.fr-sec img,#fr-modal img,#fr-lb img{transition:opacity .7s ease}
+.fr-imgwait{opacity:0!important}
+@media(prefers-reduced-motion:reduce){body{transition:none!important}.fr-sec img,#fr-modal img{transition:none}}
