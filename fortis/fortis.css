@@ -614,14 +614,14 @@ html.fr-unitpage{background:var(--fr-cream)}
 .fr-imgwait{opacity:0!important}
 @media(prefers-reduced-motion:reduce){body{transition:none!important}.fr-sec img,#fr-modal img{transition:none}}
 
-/* developer logos: larger */
+/* developer logos: medium */
 .fr-devs>div{gap:6px 12px}
-.fr-devs .fr-dev{height:118px;padding:8px 6px}
-.fr-dev img{max-width:92%;max-height:78px}
-.fr-dev img[src*="alamsutera"],.fr-dev img[src*="summarecon"]{max-height:96px}
+.fr-devs .fr-dev{height:100px;padding:8px 6px}
+.fr-dev img{max-width:84%;max-height:62px}
+.fr-dev img[src*="alamsutera"],.fr-dev img[src*="summarecon"]{max-height:76px}
 @media(max-width:767px){
-  .fr-devs>div{gap:2px 6px}
-  .fr-devs .fr-dev{height:96px;padding:4px 2px}
-  .fr-dev img{max-width:98%;max-height:62px}
-  .fr-dev img[src*="alamsutera"],.fr-dev img[src*="summarecon"]{max-height:84px}
+  .fr-devs>div{gap:2px 8px}
+  .fr-devs .fr-dev{height:84px;padding:4px 4px}
+  .fr-dev img{max-width:84%;max-height:48px}
+  .fr-dev img[src*="alamsutera"],.fr-dev img[src*="summarecon"]{max-height:64px}
 }
