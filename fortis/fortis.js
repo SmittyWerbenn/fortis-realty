@@ -640,7 +640,7 @@ function openModal(id) {
    <div class="fr-dtop">
     <div class="fr-dposter"><img src="${IMG(p.img)}" alt="${esc(p.name)}"></div>
     <div class="fr-dinfo">
-      <div class="fr-badges" style="position:static"><span class="fr-badge ${p.status === 'disewa' ? 'rent' : ''}" style="border:1px solid #0f0e0e33">${st}</span>${p.hot ? '<span class="fr-badge hot">' + ICO.fire + 'Hot Deal</span>' : ''}</div>
+      <div class="fr-badges" style="position:static"><span class="fr-badge ${p.status === 'disewa' ? 'rent' : ''}" style="border:1px solid #27141833">${st}</span>${p.hot ? '<span class="fr-badge hot">' + ICO.fire + 'Hot Deal</span>' : ''}</div>
       <h1 class="fr-dh">${esc(p.name)}</h1><div class="fr-loc" style="margin:0">${ICO.pin}${esc(p.loc)}, ${esc(p.city)}</div>
       <div class="fr-dprice"><div class="fr-price">${priceHTML(p)}</div></div>
       <p class="fr-ddesc">${esc(p.desc)}</p>

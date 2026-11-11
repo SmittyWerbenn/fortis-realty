@@ -41,3 +41,29 @@ In the repository: **Settings → Pages → Build and deployment → Source: Git
 * `EMAIL`, `PHONE`, `ADDRESS` – contact details in the footer
 * Listing data (`const P = [...]`): prices, sizes and descriptions that are not on the posters are dummy values
 * `ELFSIGHT_APP_ID` – Instagram widget
+
+## Tema warna (brand tokens)
+
+Semua token ada di `:root` pada `fortis/fortis.css`.
+
+| Token | Nilai | Dipakai untuk |
+|---|---|---|
+| `--fr-gold-100` | `#E8D5B5` | permukaan **gelap**: teks utama, highlight, tombol primer |
+| `--fr-gold-muted` | `rgba(232,213,181,.28)` | permukaan gelap: border & aksen halus |
+| `--fr-gold-soft` | `rgba(232,213,181,.72)` | permukaan gelap: teks sekunder |
+| `--fr-maroon` (`--fr-dark`) | `#271418` | permukaan **terang**: teks utama, aksen brand, juga warna latar section gelap |
+| `--fr-maroon-2` | `#381F23` | permukaan terang: elemen sekunder (nomor, aksen) |
+| `--fr-maroon-soft` | `rgba(39,20,24,.74)` | permukaan terang: teks isi (kontras AA di atas krem `#f6f3eb`) |
+
+Contoh pemakaian:
+
+```css
+/* terang */  .fr-light { background:#f6f3eb; color:var(--fr-maroon); }
+              .fr-light .fr-btn  { background:var(--fr-maroon); color:var(--fr-gold-100); }            /* primer  */
+              .fr-light .fr-btn.ghost { background:transparent; color:var(--fr-maroon); border:1px solid var(--fr-maroon); } /* outline */
+/* gelap  */  .fr-dark  { background:var(--fr-maroon); color:var(--fr-gold-100); }
+              .fr-dark .fr-btn   { background:var(--fr-gold-100); color:var(--fr-maroon); }            /* primer  */
+              .fr-dark .fr-btn.ghost { background:transparent; color:var(--fr-gold-100); border:1px solid var(--fr-gold-muted); }
+```
+
+Warna token bawaan template (putih/hitam) dipetakan ulang ke emas champagne / maroon di akhir `fortis.css`.

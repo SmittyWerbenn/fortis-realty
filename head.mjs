@@ -26,4 +26,4 @@ export const TITLE_GUARD = `(function(){var t=document.querySelector("title");if
 
 // Smooth first paint: the page stays hidden (dark, same as the hero) until fortis.js has branded it, then fades in.
 // Pure CSS + a 6 s failsafe, so nothing can stay hidden if the script never runs.
-export const FADE = `<style id="fr-fade-css">html{background:#0f0e0e}body{transition:opacity .7s ease}html:not(.fr-ready) body,html.fr-unitpage:not(.fr-unit-ready) body{opacity:0}html.fr-nofade body{opacity:1!important}</style><script>setTimeout(function(){document.documentElement.classList.add("fr-nofade")},6000)</script>`;
+export const FADE = `<style id="fr-fade-css">html{background:#271418}body{transition:opacity .7s ease}html:not(.fr-ready) body,html.fr-unitpage:not(.fr-unit-ready) body{opacity:0}html.fr-nofade body{opacity:1!important}</style><script>setTimeout(function(){document.documentElement.classList.add("fr-nofade")},6000)</script>`;
