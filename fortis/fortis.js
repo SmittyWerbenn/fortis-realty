@@ -145,6 +145,7 @@ const EN = {
   'Belum ada unit yang cocok dengan filter ini. Coba ubah kriteria pencarian.': 'No units match this filter yet. Try changing your search criteria.',
   'Hubungi Sales': 'Contact Sales', 'Detail Unit': 'Unit Details', 'Detail unit': 'Unit details', 'Tutup': 'Close', 'Kembali': 'Back',
   'Sertifikat': 'Certificate', 'Luas Tanah': 'Land Area', 'Luas Bangunan': 'Building Area', 'Kamar Tidur': 'Bedrooms', 'Kamar Mandi': 'Bathrooms', 'Listrik': 'Electricity',
+  'Galeri': 'Gallery', 'Galeri Properti': 'Property Gallery', 'Rekomendasi': 'Recommended', 'Properti Lainnya': 'More Properties', 'Katalog': 'Catalog', 'Foto': 'Photo',
   'Booking Survey': 'Book a Survey', 'Simulasi KPR unit ini': 'Simulate mortgage for this unit',
   // facilities
   'Carport 2 mobil': '2-car carport', 'Taman': 'Garden', 'One gate system': 'One-gate system', '3 lantai': '3 floors', '2 lantai': '2 floors', 'Parkir depan': 'Front parking', 'Dekat mall': 'Near the mall', 'Area komersial': 'Commercial area',
@@ -624,17 +625,41 @@ function setupReveal() {
   setTimeout(() => $$('.fr-rv').forEach(el => el.classList.remove('fr-rv')), 15000);
 }
 
+function galleryOf(p) { const k = ['p1', 'p2', 'p3', 'p4', 'p5', 'p6']; return Array.from({ length: 5 }, (_, i) => k[(p.id + i) % 6]); }   // placeholder photos until real unit photos are added
+let LB = { list: [], i: 0 };
+function openLb(i) {
+  const m = $('#fr-lb') || (() => { const d = document.createElement('div'); d.id = 'fr-lb'; d.className = 'fr-lb'; d.innerHTML = '<button class="fr-lb-x" data-lb-x aria-label="Tutup">×</button><button class="fr-lb-n prev" data-lb-n="-1" aria-label="Sebelumnya"></button><img alt=""><button class="fr-lb-n next" data-lb-n="1" aria-label="Berikutnya"></button><div class="fr-lb-c"></div>'; document.body.appendChild(d); return d; })();
+  LB.i = (i + LB.list.length) % LB.list.length; $('img', m).src = LB.list[LB.i]; $('.fr-lb-c', m).textContent = (LB.i + 1) + ' / ' + LB.list.length; m.classList.add('open');
+}
+function closeLb() { const m = $('#fr-lb'); if (m) m.classList.remove('open'); }
 function openModal(id) {
   const p = P.find(x => x.id === id); if (!p) return;
-  const m = $('#fr-modal');
-  m.innerHTML = `<div class="fr-mbar"><button class="fr-back" data-back type="button"><span class="fr-back-i" aria-hidden="true"></span><span data-fr-t>Kembali</span></button></div><div class="fr-mbox"><img src="${IMG(p.img)}" alt="${esc(p.name)}">
-  <div class="fr-mcont"><div class="fr-badges" style="position:static"><span class="fr-badge ${p.status === 'disewa' ? 'rent' : ''}" style="border:1px solid #0f0e0e33">${p.status === 'dijual' ? 'Dijual' : 'Disewa'}</span>${p.hot ? '<span class="fr-badge hot">' + ICO.fire + 'Hot Deal</span>' : ''}</div>
-  <h3>${esc(p.name)}</h3><div class="fr-loc" style="margin:0">${ICO.pin}${esc(p.loc)}, ${esc(p.city)}</div>
-  <div class="fr-price">${priceHTML(p)}</div><p>${esc(p.desc)}</p>
-  <div class="fr-dl"><div><b>Tipe</b>${TYPES[p.type]}</div><div><b>Sertifikat</b>${p.cert}</div><div><b>Luas Tanah</b>${p.lt ? p.lt + ' m²' : '-'}</div><div><b>Luas Bangunan</b>${p.lb ? p.lb + ' m²' : '-'}</div><div><b>Kamar Tidur</b>${p.kt || '-'}</div><div><b>Kamar Mandi</b>${p.km || '-'}</div><div><b>Listrik</b>${p.listrik}</div><div><b>Status</b>${p.status === 'dijual' ? 'Dijual' : 'Disewa'}</div></div>
-  <div class="fr-fac">${p.fac.map(f => `<span>${esc(f)}</span>`).join('')}</div>
-  <div class="fr-actions"><button class="fr-btn" data-book="${p.id}">Booking Survey</button><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}WhatsApp</a></div>
-  ${p.status === 'dijual' ? `<button class="fr-btn ghost" data-kpr="${p.id}">Simulasi KPR unit ini</button>` : ''}</div></div>`;
+  const m = $('#fr-modal'), st = p.status === 'dijual' ? 'Dijual' : 'Disewa';
+  const gal = galleryOf(p).map(IMG); LB = { list: gal, i: 0 };
+  const rel = P.filter(x => x.id !== p.id).sort((a, b) => (b.type === p.type) - (a.type === p.type) || (b.status === p.status) - (a.status === p.status) || a.id - b.id).slice(0, 3);
+  const spec = [['Luas Tanah', p.lt && p.lt + ' m²'], ['Luas Bangunan', p.lb && p.lb + ' m²'], ['Kamar Tidur', p.kt], ['Kamar Mandi', p.km]].filter(x => x[1]);
+  m.innerHTML = `<div class="fr-mbar"><button class="fr-back" data-back type="button"><span class="fr-back-i" aria-hidden="true"></span><span data-fr-t>Kembali</span></button><div class="fr-crumb"><a href="${U('/#katalog')}" data-fr-go="/#katalog">Katalog</a><i>/</i><span>${esc(p.name)}</span></div></div>
+  <div class="fr-dwrap">
+   <div class="fr-dtop">
+    <div class="fr-dposter"><img src="${IMG(p.img)}" alt="${esc(p.name)}"></div>
+    <div class="fr-dinfo">
+      <div class="fr-badges" style="position:static"><span class="fr-badge ${p.status === 'disewa' ? 'rent' : ''}" style="border:1px solid #0f0e0e33">${st}</span>${p.hot ? '<span class="fr-badge hot">' + ICO.fire + 'Hot Deal</span>' : ''}</div>
+      <h1 class="fr-dh">${esc(p.name)}</h1><div class="fr-loc" style="margin:0">${ICO.pin}${esc(p.loc)}, ${esc(p.city)}</div>
+      <div class="fr-dprice"><div class="fr-price">${priceHTML(p)}</div></div>
+      <p class="fr-ddesc">${esc(p.desc)}</p>
+      ${spec.length ? `<div class="fr-dspec">${spec.map(([l, v]) => `<div><strong>${v}</strong><span>${l}</span></div>`).join('')}</div>` : ''}
+      <div class="fr-dl"><div><b>Tipe</b>${TYPES[p.type]}</div><div><b>Sertifikat</b>${p.cert}</div><div><b>Listrik</b>${p.listrik}</div><div><b>Status</b>${st}</div></div>
+      <div class="fr-fac">${p.fac.map(f => `<span>${esc(f)}</span>`).join('')}</div>
+      <div class="fr-actions"><button class="fr-btn" data-book="${p.id}">Booking Survey</button><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}WhatsApp</a></div>
+      ${p.status === 'dijual' ? `<button class="fr-btn ghost" data-kpr="${p.id}">Simulasi KPR unit ini</button>` : ''}
+    </div>
+   </div>
+   <section class="fr-dsec"><div class="fr-tag">Galeri</div><h2 class="fr-h2">Galeri Properti</h2>
+    <div class="fr-gal">${gal.map((g, i) => `<button type="button" class="fr-gal-i g${i}" data-lb="${i}" aria-label="Foto ${i + 1}"><img src="${g}" alt="${esc(p.name)}" loading="lazy"></button>`).join('')}</div></section>
+   <section class="fr-dsec"><div class="fr-tag">Rekomendasi</div><h2 class="fr-h2">Properti Lainnya</h2>
+    <div class="fr-rel">${rel.map(r => `<a class="fr-rel-i" href="${U('/?unit=' + r.id)}" data-fr-go="/?unit=${r.id}"><div class="fr-rel-img"><img src="${IMG(r.img)}" alt="${esc(r.name)}" loading="lazy"></div><div class="fr-rel-b"><h3>${esc(r.name)}</h3><div class="fr-loc" style="margin:0">${ICO.pin}${esc(r.loc)}</div><div class="fr-rel-p">${priceHTML(r)}</div></div></a>`).join('')}</div></section>
+  </div>
+  <div class="fr-dbar"><div><small>${p.from ? 'harga mulai' : ''}</small><b>${rp(p.price)}${p.per || ''}</b></div><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}WhatsApp</a></div>`;
   i18nDom(); m.classList.add('open'); m.scrollTop = 0; document.documentElement.classList.add('fr-unit-ready'); document.documentElement.style.overflow = 'hidden';
 }
 function closeModal() { $('#fr-modal').classList.remove('open'); const h = document.documentElement; h.classList.remove('fr-unitpage', 'fr-unit-ready'); h.style.overflow = ''; if (/[?&]unit=/.test(location.search)) history.replaceState(null, '', U('/') + location.hash); }
@@ -832,6 +857,9 @@ window.addEventListener('click', e => {
   const d = t.closest('[data-detail]'); if (d) { e.preventDefault(); location.href = U(`/?unit=${+d.dataset.detail}`); return; }
   const b = t.closest('[data-book]'); if (b) { if (window.__frBook) window.__frBook(b.dataset.book); goTo('kontak'); return; }
   const k = t.closest('[data-kpr]'); if (k) { window.__frSetKpr(P.find(x => x.id === +k.dataset.kpr).price); goTo('kpr'); return; }
+  const lbn = t.closest('[data-lb-n]'); if (lbn) { openLb(LB.i + +lbn.dataset.lbN); return; }
+  if (t.closest('[data-lb-x]') || t.id === 'fr-lb') { closeLb(); return; }
+  const lb = t.closest('[data-lb]'); if (lb) { openLb(+lb.dataset.lb); return; }
   if (t.closest('[data-back]')) { e.preventDefault(); return goBack(); }
   const lg = t.closest && t.closest('[data-lang]');
   if (lg) { e.preventDefault(); e.stopImmediatePropagation(); setLang(lg.dataset.lang); return; }
@@ -849,7 +877,7 @@ document.addEventListener('change', e => { if (e.target.id === 'fr-loc') { state
 // the first nav item was a dropdown ("Pages") in the template; it is now a plain link, so swallow its hover/focus events
 ['pointerover', 'pointerenter', 'mouseover', 'mouseenter', 'pointermove', 'mousemove', 'focusin', 'touchstart'].forEach(t =>
   window.addEventListener(t, e => { if (e.target.closest && e.target.closest('nav [class*="gf9md2"]')) e.stopImmediatePropagation(); }, true));
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#fr-modal.open')) goBack(); });
+document.addEventListener('keydown', e => { const l = $('#fr-lb.open'); if (l) { if (e.key === 'Escape') closeLb(); else if (e.key === 'ArrowRight') openLb(LB.i + 1); else if (e.key === 'ArrowLeft') openLb(LB.i - 1); return; } if (e.key === 'Escape' && $('#fr-modal.open')) goBack(); });
 
 /* ---- boot: wait for Framer hydration, then keep branding stable ---- */
 addEventListener('scroll', () => document.documentElement.classList.toggle('fr-scrolled', scrollY > 30), { passive: true });
