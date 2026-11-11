@@ -550,7 +550,17 @@ function renderGrid() {
 
 
 
-/* ---- catalog photo reveal: the frame opens from the centre towards left and right ---- */
+/* resolves once the picture has really loaded (and decoded), so the reveal below plays on the finished photo, not on an empty frame */
+function whenLoaded(im) {
+  return new Promise(res => {
+    if (!im) return res();
+    const go = () => (im.decode ? im.decode().catch(() => {}) : Promise.resolve()).then(res);
+    if (im.complete && im.naturalWidth) return go();
+    im.loading = 'eager';
+    im.addEventListener('load', go, { once: true }); im.addEventListener('error', res, { once: true }); setTimeout(res, 10000);
+  });
+}
+/* ---- catalog photo reveal: the frame opens from the centre towards left and right, as soon as the photo has loaded ---- */
 let imgIO;
 function observeCardImages() {
   if (REDUCED || !('IntersectionObserver' in window)) return;
@@ -558,12 +568,15 @@ function observeCardImages() {
     if (!en.isIntersecting) return;
     const card = en.target; imgIO.unobserve(card); const el = $('.fr-img', card);
     const i = [...card.parentElement.children].indexOf(card);
-    el.classList.remove('fr-clip');
-    el.animate([{ clipPath: 'inset(0 50% 0 50%)' }, { clipPath: 'inset(0 0% 0 0%)' }], { duration: 1100, delay: (i % 2) * 140, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'backwards' });
-    const im = $('img', el); if (im) im.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 1400, delay: (i % 2) * 140, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
+    const im = $('img', el);
+    whenLoaded(im).then(() => {
+      el.classList.remove('fr-clip');
+      el.animate([{ clipPath: 'inset(0 50% 0 50%)' }, { clipPath: 'inset(0 0% 0 0%)' }], { duration: 1100, delay: (i % 2) * 140, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'backwards' });
+      if (im) im.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 1400, delay: (i % 2) * 140, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
+    });
   }), { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
   $$('#fr-grid .fr-card').forEach(c => { $('.fr-img', c).classList.add('fr-clip'); imgIO.observe(c); });
-  setTimeout(() => $$('.fr-clip').forEach(el => el.classList.remove('fr-clip')), 15000);
+  setTimeout(() => $$('.fr-clip').forEach(el => el.classList.remove('fr-clip')), 25000);
 }
 
 
@@ -594,12 +607,15 @@ function decorateProjectImages() {
     if (!en.isIntersecting) return;
     const a = en.target; pimgIO.unobserve(a); const fr = $('[data-framer-name="Image"]', a); if (!fr) return;
     const i = $$('a[data-fr-go]').indexOf(a);
-    fr.classList.remove('fr-pclip');
-    fr.animate([{ clipPath: 'inset(0 50% 0 50%)' }, { clipPath: 'inset(0 0% 0 0%)' }], { duration: 1100, delay: (i % 2) * 140, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'backwards' });
-    const im = $('img', fr); if (im) im.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 1400, delay: (i % 2) * 140, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
+    const im = $('img', fr);
+    whenLoaded(im).then(() => {
+      fr.classList.remove('fr-pclip');
+      fr.animate([{ clipPath: 'inset(0 50% 0 50%)' }, { clipPath: 'inset(0 0% 0 0%)' }], { duration: 1100, delay: (i % 2) * 140, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'backwards' });
+      if (im) im.animate([{ transform: 'scale(1.25)' }, { transform: 'scale(1)' }], { duration: 1400, delay: (i % 2) * 140, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' });
+    });
   }), { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
   cards.forEach(a => { a.dataset.frImg = '1'; $('[data-framer-name="Image"]', a).classList.add('fr-pclip'); pimgIO.observe(a); });
-  setTimeout(() => $$('.fr-pclip').forEach(el => el.classList.remove('fr-pclip')), 15000);
+  setTimeout(() => $$('.fr-pclip').forEach(el => el.classList.remove('fr-pclip')), 25000);
 }
 /* ---- scroll reveal (same feel as the template: fade + rise as objects enter the viewport) ---- */
 const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -882,7 +898,7 @@ let timer;
 /* ---- images fade in as they finish loading (instead of popping in) ---- */
 function smoothImages() {
   $$('.fr-sec img, #fr-modal img, #fr-lb img').forEach(im => {
-    if (im.dataset.frSm) return; im.dataset.frSm = '1';
+    if (im.dataset.frSm || im.closest('.fr-img')) return; im.dataset.frSm = '1';
     if (im.complete && im.naturalWidth) return;
     im.classList.add('fr-imgwait');
     const done = () => im.classList.remove('fr-imgwait');
