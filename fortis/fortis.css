@@ -639,3 +639,7 @@ body{--token-7be28bd3-9f32-40f4-b7d6-81880327ec9d:#E8D5B5!important;--token-1a2a
 /* contact card is a light surface: cream + maroon, not champagne */
 #kontak [data-framer-name="Content"].framer-1feql1,#kontak .framer-1feql1{background-color:var(--fr-cream)!important}
 #fr-contact input::placeholder,#fr-contact textarea::placeholder{color:var(--fr-maroon-soft);opacity:.8}
+
+/* header menu text in logo gold */
+nav [data-framer-name="Menu Wrapper"] a p,nav [data-framer-name="Menu Wrapper"] a .framer-text,nav a.fr-navitem p,nav a.fr-navitem .framer-text,nav .fr-navitem,nav .fr-navitem *{color:#C8A96E!important;--framer-text-color:#C8A96E!important;transition:color .25s}
+nav [data-framer-name="Menu Wrapper"] a:hover p,nav a.fr-navitem:hover p,nav a.fr-navitem:hover .framer-text{color:#E8D5B5!important}
