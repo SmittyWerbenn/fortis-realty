@@ -17,7 +17,8 @@ const CFG = {
   EMAIL: 'hello@fortisrealty.id',            // TODO
   PHONE: '+62 812-3456-7890',                // TODO
   ADDRESS: 'Jakarta, Indonesia',             // TODO
-  LOGO: U('/__fortis/logo-fortis.png')
+  LOGO: U('/__fortis/logo-fortis.png'),
+  LOGO_H: U('/__fortis/logo-horizontal.png')
 };
 
 const TYPES = { rumah: 'Rumah Residensial', ruko: 'Ruko Komersial', apartemen: 'Apartemen', tanah: 'Tanah/Kavling' };
@@ -288,15 +289,11 @@ function brandChrome() {
     const wrap = img.closest('[data-framer-background-image-wrapper]') || img.parentElement;
     const host = wrap.parentElement;
     img.removeAttribute('srcset'); img.removeAttribute('sizes');
-    img.src = CFG.LOGO; img.alt = 'Fortis Realty Logo';
-    Object.assign(img.style, { height: '40px', width: 'auto', objectFit: 'contain', position: 'static', inset: 'auto', display: 'block' });
+    img.src = CFG.LOGO_H; img.alt = 'Fortis Realty';
+    Object.assign(img.style, { height: '36px', width: 'auto', objectFit: 'contain', position: 'static', inset: 'auto', display: 'block' });
     Object.assign(wrap.style, { overflow: 'visible', minWidth: 'max-content', position: 'static', width: 'auto', height: '40px', inset: 'auto', display: 'flex', alignItems: 'center', gap: '10px' });
     Object.assign(a.style, { width: 'max-content', minWidth: 'max-content', height: '40px', overflow: 'visible' });
     if (host) { host.style.width = 'max-content'; host.style.minWidth = 'max-content'; host.style.height = '40px'; host.style.overflow = 'visible'; }
-    const t = document.createElement('span'); t.className = 'fr-logo-t';
-    t.textContent = 'Fortis Realty';
-    t.style.cssText = 'font:600 22px/1 TikTok Sans,Inter,sans-serif;text-transform:uppercase;white-space:nowrap';
-    wrap.appendChild(t);
     if (a.closest('nav')) for (let el = wrap.parentElement; el && !/Content|Container/.test(el.dataset.framerName || ''); el = el.parentElement) { el.style.overflow = 'visible'; el.style.width = 'auto'; el.style.minWidth = 'max-content'; if (el.dataset.framerName === 'Logo') { el.style.height = '40px'; el.style.display = 'flex'; el.style.alignItems = 'center'; el.style.alignSelf = 'center'; } }
   });
   const ref = $('nav a[data-framer-name="Desktop 01"] p'); 
