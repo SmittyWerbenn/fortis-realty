@@ -546,7 +546,7 @@ function renderGrid() {
     <div class="fr-cbody"><div class="fr-tags"><span>${p.status === 'dijual' ? 'Dijual' : 'Disewa'}</span><span>${esc(p.loc)}</span></div>
     <h3>${esc(p.name)}</h3>
     <div class="fr-pmeta"><div class="fr-pprice">${priceHTML(p)}</div><div class="fr-pspec">${TYPES[p.type]} · ${ukuran(p)}${p.kt ? ' · ' + p.kt + ' KT' : ''}${p.km ? ' · ' + p.km + ' KM' : ''}</div></div>
-    <div class="fr-actions"><button class="fr-btn ghost" data-detail="${p.id}">Detail Unit</button><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}<span class="fr-wa-d">WhatsApp</span><span class="fr-wa-m">Hubungi Sales</span></a></div></div></article>`).join('')
+    <div class="fr-actions"><button class="fr-btn ghost" data-detail="${p.id}">Detail Unit</button><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}<span class="fr-wa-d">Hubungi Sales</span><span class="fr-wa-m">Hubungi Sales</span></a></div></div></article>`).join('')
     : '<div class="fr-empty">Belum ada unit yang cocok dengan filter ini. Coba ubah kriteria pencarian.</div>';
   i18nDom(); observeCardImages();
 }
