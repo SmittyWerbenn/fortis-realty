@@ -1,7 +1,7 @@
 // Jalankan: node server.mjs   -> buka http://localhost:8080
 import http from 'http'; import fs from 'fs'; import path from 'path';
 import { fileURLToPath } from 'url';
-import { brandHead, TITLE_GUARD } from './head.mjs';
+import { brandHead, TITLE_GUARD, LOADER } from './head.mjs';
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), 'full');
 const FORTIS = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fortis');
 const PORT = process.env.PORT || 8080;
@@ -18,7 +18,7 @@ function rewrite(s, origin, route){
   s = brandHead(s, { origin, base: '', route: route || '/' });
   s = s.split('https://api.framer.com/').join(origin + '/__blocked/').split('https://events.framer.com/').join(origin + '/__blocked/');
   s = s.replace(/<link[^>]*rel="(?:shortcut )?icon"[^>]*>/g,'').replace(/<link[^>]*rel="apple-touch-icon"[^>]*>/g,'');
-  s = s.replace('</head>','<link rel="icon" type="image/png" sizes="64x64" href="/__fortis/favicon.png"><link rel="apple-touch-icon" href="/__fortis/apple-touch-icon.png"><link rel="stylesheet" href="/__fortis/fortis.css"><script>if(location.pathname.replace(/[/]+$/,"")==="/project")document.documentElement.classList.add("fr-proj")</script><script>'+TITLE_GUARD+'</script><script defer src="/__fortis/fortis.js"></script><style>#__framer-badge-container,.__framer-badge{display:none!important}</style></head>');
+  s = s.replace('</head>','<link rel="icon" type="image/png" sizes="64x64" href="/__fortis/favicon.png"><link rel="apple-touch-icon" href="/__fortis/apple-touch-icon.png"><link rel="stylesheet" href="/__fortis/fortis.css"><script>if(location.pathname.replace(/[/]+$/,"")==="/project")document.documentElement.classList.add("fr-proj")</script><script>'+TITLE_GUARD+'</script>'+LOADER+'<script defer src="/__fortis/fortis.js"></script><style>#__framer-badge-container,.__framer-badge{display:none!important}</style></head>');
   return s.replace(/<script[^>]*(events\.framer\.com|framer\.com\/edit)[^>]*><\/script>/g,'');
 }
 function find(pathname, search){
