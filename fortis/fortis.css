@@ -1,4 +1,6 @@
 /* Fortis Realty — overlay styles. Reuses the template's own palette & fonts. */
+/* same arrow icon as the hero button */
+:root{--fr-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 12H19M12 5L19 12L12 19' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
 :root{--fr-dark:#0f0e0e;--fr-cream:#f6f3eb;--fr-white:#fff;--fr-line-d:rgba(15,14,14,.18);--fr-line-l:rgba(246,243,235,.22);--fr-gold:#b8995a;
 --fr-head:"TikTok Sans","TikTok Sans Placeholder",Inter,sans-serif;--fr-body:Inter,"Inter Placeholder",sans-serif}
 html{scroll-behavior:smooth}
@@ -348,7 +350,7 @@ nav [data-framer-name="Menu Wrapper"]:has(.fr-lang){padding-right:40px}
 .fr-btn.fr-follow{display:inline-flex;align-items:center;gap:18px;padding:10px 26px 10px 10px;background:#0f0e0e;color:#f6f3eb;border:1px solid #0f0e0e;font:500 15px/1 var(--fr-head);letter-spacing:.02em;text-transform:uppercase;box-shadow:0 22px 40px -26px rgba(15,14,14,.9);transition:background .3s,color .3s,box-shadow .3s,transform .3s}
 .fr-follow-ico{flex:none;width:46px;height:46px;object-fit:contain;display:block}
 .fr-follow-ico svg{width:23px;height:23px;fill:#fff}
-.fr-follow-arr{font-size:20px;line-height:1;transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.fr-follow-arr{width:20px;height:20px;background:currentColor;-webkit-mask:var(--fr-arrow) center/20px no-repeat;mask:var(--fr-arrow) center/20px no-repeat;transition:transform .3s cubic-bezier(.16,1,.3,1)}
 .fr-btn.fr-follow:hover{background:transparent;color:#0f0e0e;transform:translateY(-2px);box-shadow:0 26px 44px -26px rgba(15,14,14,.55)}
 .fr-btn.fr-follow:hover .fr-follow-arr{transform:translateX(6px)}
 @media(max-width:767px){#instagram .fr-center{margin-top:48px}.fr-btn.fr-follow{gap:14px;padding:8px 18px 8px 8px;font-size:12.5px}.fr-follow-ico{width:40px;height:40px}.fr-follow-ico svg{width:20px;height:20px}}
@@ -363,7 +365,8 @@ nav [data-framer-name="Menu Wrapper"]:has(.fr-lang){padding-right:0!important}
 .fr-more-t{padding:22px 14px 22px 32px;align-self:center}
 .fr-more-n{align-self:center;margin:0 24px 0 10px;padding:6px 10px;border:1px solid rgba(15,14,14,.28);font:500 13px/1 var(--fr-head);transition:border-color .35s}
 .fr-more-ico{display:grid;place-items:center;width:66px;background:#0f0e0e;color:#f6f3eb;font-size:24px;line-height:1;transition:background .35s,color .35s}
-.fr-more-ico{position:relative;overflow:hidden}
+.fr-more-ico{position:relative;overflow:hidden;font-size:0}
+.fr-more-ico::after{content:"";width:22px;height:22px;background:currentColor;-webkit-mask:var(--fr-arrow) center/22px no-repeat;mask:var(--fr-arrow) center/22px no-repeat}
 .fr-btn.fr-more:hover{background:#0f0e0e;color:#f6f3eb;transform:translateY(-2px);box-shadow:0 24px 44px -26px rgba(15,14,14,.7)}
 .fr-btn.fr-more:hover .fr-more-n{border-color:rgba(246,243,235,.4)}
 .fr-btn.fr-more:hover .fr-more-ico{background:#f6f3eb;color:#0f0e0e}
@@ -383,8 +386,9 @@ nav [data-framer-name="Menu Wrapper"]:has(.fr-lang){padding-right:0!important}
 :is(.fr-sec,#fr-modal,#fr-contact) .fr-btn:not(.fr-more):not(.fr-follow):hover{background:var(--bg);color:var(--hfg);transform:translateY(-2px);box-shadow:0 20px 34px -22px rgba(15,14,14,.65)}
 :is(.fr-sec,#fr-modal,#fr-contact) .fr-btn:not(.fr-more):not(.fr-follow):hover::before{transform:scaleX(1)}
 /* arrow box (text buttons) */
-:is(.fr-sec,#fr-modal,#fr-contact) .fr-btn:not(.fr-more):not(.fr-follow):not(.wa)::after{content:"\2192";align-self:stretch;display:grid;place-items:center;width:54px;margin-left:26px;border-left:1px solid color-mix(in srgb,currentColor 28%,transparent);font:400 19px/1 var(--fr-body);transition:transform .45s cubic-bezier(.16,1,.3,1)}
-:is(.fr-sec,#fr-modal,#fr-contact) .fr-btn:not(.fr-more):not(.fr-follow):not(.wa):hover::after{transform:translateX(5px)}
+:is(.fr-sec,#fr-modal,#fr-contact) .fr-btn:not(.fr-more):not(.fr-follow):not(.wa)::after{content:"";align-self:stretch;width:54px;margin-left:26px;background:currentColor;-webkit-mask:var(--fr-arrow) 50% 50%/20px 20px no-repeat,linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.28)) 0 0/1px 100% no-repeat;mask:var(--fr-arrow) 50% 50%/20px 20px no-repeat,linear-gradient(rgba(0,0,0,.28),rgba(0,0,0,.28)) 0 0/1px 100% no-repeat}
+:is(.fr-sec,#fr-modal,#fr-contact) .fr-btn:not(.fr-more):not(.fr-follow):not(.wa):hover::after{animation:frArrowGo .65s cubic-bezier(.16,1,.3,1)}
+@keyframes frArrowGo{0%{-webkit-mask-position:50% 50%,0 0;mask-position:50% 50%,0 0}45%{-webkit-mask-position:260% 50%,0 0;mask-position:260% 50%,0 0}46%{-webkit-mask-position:-160% 50%,0 0;mask-position:-160% 50%,0 0}100%{-webkit-mask-position:50% 50%,0 0;mask-position:50% 50%,0 0}}
 /* variants */
 :is(.fr-sec,#fr-modal,#fr-contact) .fr-btn.ghost:not(.fr-more):not(.fr-follow){--bg:transparent;--fg:#0f0e0e;--bd:#0f0e0e;--sw:#0f0e0e;--hfg:#f6f3eb}
 :is(.fr-sec,#fr-modal,#fr-contact) .fr-btn.wa:not(.fr-more):not(.fr-follow){--bg:#1f8f4d;--fg:#fff;--bd:#1f8f4d;--sw:#0f0e0e;--hfg:#fff;padding:0 30px 0 0}
@@ -532,3 +536,6 @@ html.fr-unitpage{background:var(--fr-cream)}
   .fr-acta{padding:26px 20px}.fr-acta .fr-btn{width:100%}
   .fr-pill-i{grid-template-columns:40px 1fr}
 }
+
+.fr-back-i{width:18px;height:18px;background:currentColor;-webkit-mask:var(--fr-arrow) center/18px no-repeat;mask:var(--fr-arrow) center/18px no-repeat;transform:scaleX(-1);transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.fr-back:hover .fr-back-i{transform:scaleX(-1) translateX(5px)}
