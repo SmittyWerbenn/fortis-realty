@@ -351,13 +351,13 @@ function brandChrome() {
 function brandHero() {
   const hero = $('section[data-framer-name="Hero Section"]'); if (!hero) return;
   const set = (el, txt) => { if (el && el.textContent !== txt) el.textContent = txt; };
-  const h1 = $('h1', hero), HEAD = tr('Temukan Hunian Impian Anda');
+  const h1 = $('h1', hero), HEAD = 'You Dream It, We Find It';
   let built = false;
   if (h1 && h1.textContent !== HEAD) {
     // same structure as the template's split-text: nowrap word > inline-block letters
     h1.textContent = '';
     HEAD.split(' ').forEach((w, i) => {
-      if (i) h1.appendChild(document.createTextNode(' '));
+      if (i) h1.appendChild(/,$/.test(HEAD.split(' ')[i - 1]) ? document.createElement('br') : document.createTextNode(' '));
       const ws = document.createElement('span'); ws.style.whiteSpace = 'nowrap';
       [...w].forEach(ch => { const l = document.createElement('span'); l.style.display = 'inline-block'; l.textContent = ch; ws.appendChild(l); });
       h1.appendChild(ws);
