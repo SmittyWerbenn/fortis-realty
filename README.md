@@ -28,6 +28,28 @@ npm run build:root   # dist/ for a domain root (set ORIGIN=https://your-domain)
 BASE_PATH=/fortis-realty npm run preview   # http://localhost:8090/fortis-realty/
 ```
 
+
+## Koneksi ke Admin Dashboard (katalog, KPR, inquiry)
+
+Dashboard (`fortis-dashboard/web`) adalah **sumber data** katalog. Situs ini mengambil dari API-nya dan tetap jalan memakai data
+statis di `fortis.js` bila API tidak terjangkau (hasil terakhir juga disimpan di `localStorage` selama 7 hari).
+
+| Apa | Endpoint dashboard | Perilaku di situs |
+| --- | --- | --- |
+| Katalog unit | `GET /api/public/properties?format=site` | Grid, halaman detail (`/?unit=ID`), filter lokasi, daftar unit di form kontak. Unit **SOLD** disembunyikan; *Coming soon* / *Reserved* tampil sebagai tag fasilitas |
+| Bunga KPR acuan | `GET /api/public/settings` | Mengisi default "Suku Bunga" di kalkulator KPR (pengunjung tetap bisa mengubahnya) |
+| Booking survey / pesan | `POST /api/public/inquiries` | Form kontak mengirim lead ke dashboard (muncul di Deals, Tasks, Leads) lalu tetap membuka WhatsApp |
+
+**Lokal**: jalankan dashboard (`cd ../fortis-dashboard/web && npm start` -> port 8766) lalu `npm run dev`. Di `localhost` situs otomatis memakai
+`http://localhost:8766`; ganti dengan `FORTIS_API=http://host:port npm run dev`.
+
+**Produksi (GitHub Pages)**:
+1. Repo Settings -> Secrets and variables -> Actions -> **Variables**: `FORTIS_API` = `https://<alamat-dashboard>` (wajib https).
+2. Di dashboard set env `PUBLIC_SITE_ORIGIN=https://fortis.frel.cloud` (origin yang boleh memanggil API) dan `PUBLIC_API_ORIGIN=https://<alamat-dashboard>`.
+3. Tanpa `FORTIS_API` build berjalan dalam mode statis.
+
+Foto: poster `catalog-N` tetap dilayani situs ini; foto yang diunggah dari dashboard dilayani dashboard lewat URL absolut.
+
 ## Deploy (GitHub Pages + GitHub Actions)
 
 `.github/workflows/pages.yml` runs on every push to `main`: it builds `dist/` with the correct base path

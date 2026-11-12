@@ -38,6 +38,8 @@ jobs:
         env:
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
           ORIGIN: ${{ steps.pages.outputs.origin }}
+          # Admin dashboard API, e.g. https://admin.example.com  (Settings -> Secrets and variables -> Actions -> Variables)
+          FORTIS_API: ${{ vars.FORTIS_API }}
 
       - name: Smoke test the build
         run: |

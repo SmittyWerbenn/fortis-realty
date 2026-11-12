@@ -22,6 +22,11 @@ const BASE = (process.env.BASE_PATH ?? '/fortis-realty').replace(/\/+$/, ''); //
 // HTTPS (e.g. through Cloudflare), and http:// URLs inside an https page are blocked as mixed content -> always upgrade.
 const ORIGIN = (process.env.ORIGIN ?? 'http://localhost:8090').replace(/\/+$/, '').replace(/^http:\/\/(?!localhost|127\.0\.0\.1)/, 'https://');
 const MAIN = 'lumura.framer.website';
+// Admin dashboard API (catalog, KPR rate, inquiries). Empty = static mode: the site uses only the data inside fortis.js.
+//   FORTIS_API=https://admin.example.com node build.mjs      (must be https when the site itself is served over https)
+const API = (process.env.FORTIS_API ?? '').trim().replace(/\/+$/, '');
+if (API && /^http:\/\/(?!localhost|127\.0\.0\.1)/.test(API)) console.warn(`WARNING: FORTIS_API (${API}) is plain http; browsers block it from an https site (mixed content).`);
+if (!API) console.warn('NOTE: FORTIS_API not set - building in static mode (no dashboard connection).');
 
 const hosts = fs.readdirSync(SRC).filter(h => h !== '_rendered');
 const prefix = h => (h === MAIN ? '' : h + '/');
@@ -35,7 +40,7 @@ function rewrite(s) {
   }
   return s;
 }
-const HEAD_SCRIPT = `<script>window.__FR_BASE=${JSON.stringify(BASE)};(function(){var p=location.pathname;if(${JSON.stringify(BASE)}&&p.indexOf(${JSON.stringify(BASE)})===0)p=p.slice(${BASE.length})||"/";if(p.replace(/[/]+$/,"")==="/project")document.documentElement.classList.add("fr-proj")})()</script>`;
+const HEAD_SCRIPT = `<script>window.__FR_API=${JSON.stringify(API)};window.__FR_BASE=${JSON.stringify(BASE)};(function(){var p=location.pathname;if(${JSON.stringify(BASE)}&&p.indexOf(${JSON.stringify(BASE)})===0)p=p.slice(${BASE.length})||"/";if(p.replace(/[/]+$/,"")==="/project")document.documentElement.classList.add("fr-proj")})()</script>`;
 // Cloudflare (Email Address Obfuscation) rewrites raw e-mail addresses in HTML, which makes Framer's hydration fail.
 // Encoding the "@" keeps the DOM text identical but is not matched by Cloudflare.
 const EMAIL = /([A-Za-z0-9._%+-]+)@([A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})/g;

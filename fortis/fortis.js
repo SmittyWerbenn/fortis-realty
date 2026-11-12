@@ -48,6 +48,56 @@ const P = [
 ];
 // register the English text that travels with each listing
 P.forEach(p => { EN_LIST.push([p.desc, p.descEn]); p.fac.forEach((f, i) => EN_LIST.push([f, p.facEn[i]])); });
+/* ================= DASHBOARD CONNECTION =================
+   The Fortis admin dashboard is the source of truth for the catalog, the KPR benchmark rate and incoming inquiries.
+   API base: window.__FR_API (injected by build.mjs / server.mjs) or http://localhost:8766 when browsing from localhost.
+   With no API configured, or when it is unreachable, the site keeps working with the static data above (and the last
+   catalog it received, cached in localStorage for 7 days). */
+const API = (() => {
+  const v = typeof window.__FR_API === 'string' ? window.__FR_API : (/^(localhost|127\.0\.0\.1)$/.test(location.hostname) ? 'http://localhost:8766' : '');
+  return v.replace(/\/+$/, '');
+})();
+const apiGet = async (path, ms = 4000) => {
+  const c = new AbortController(), t = setTimeout(() => c.abort(), ms);
+  try { const r = await fetch(API + path, { signal: c.signal, cache: 'no-store' }); if (!r.ok) throw new Error(r.status); return await r.json(); } finally { clearTimeout(t); }
+};
+const CATALOG_CACHE = 'fr-catalog-v1';
+const validListing = x => x && Number.isInteger(x.id) && x.id > 0 && typeof x.name === 'string' && typeof x.price === 'number' && Array.isArray(x.fac) && Array.isArray(x.facEn);
+/** replaces the contents of P in place (it is used everywhere); returns true when something changed */
+function applyCatalog(list) {
+  if (!Array.isArray(list) || !list.every(validListing)) return false;
+  const before = JSON.stringify(P); P.splice(0, P.length, ...list); return JSON.stringify(P) !== before;
+}
+const CATALOG = { source: 'static', changed: false, ready: null };
+async function syncCatalog() {
+  if (!API) return false;
+  try {
+    const j = await apiGet('/api/public/properties?format=site');
+    const changed = applyCatalog(j.listings); CATALOG.source = 'api';
+    try { localStorage.setItem(CATALOG_CACHE, JSON.stringify({ at: Date.now(), listings: j.listings })); } catch (e) {}
+    return changed;
+  } catch (e) {
+    try { const c = JSON.parse(localStorage.getItem(CATALOG_CACHE) || 'null'); if (c && Date.now() - c.at < 7 * 864e5 && applyCatalog(c.listings)) { CATALOG.source = 'cache'; return true; } } catch (e2) {}
+    return false;
+  }
+}
+CATALOG.ready = syncCatalog().then(c => { CATALOG.changed = c; return c; });
+let KPR_RATE = null;
+const KPR_READY = API ? apiGet('/api/public/settings').then(j => { if (typeof j.kprBenchmarkRatePct === 'number' && j.kprBenchmarkRatePct >= 0 && j.kprBenchmarkRatePct <= 30) KPR_RATE = j.kprBenchmarkRatePct; }).catch(() => {}) : Promise.resolve();
+/** sends a lead to the dashboard (best effort: WhatsApp stays the primary channel). A past survey time is retried as a note. */
+async function sendInquiry(p) {
+  if (!API) return null;
+  const post = async body => { try { const r = await fetch(API + '/api/public/inquiries', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body), keepalive: true, signal: AbortSignal.timeout(6000) }); return r.ok ? await r.json() : (r.status === 400 ? 400 : null); } catch (e) { return null; } };
+  let r = await post(p);
+  if (r === 400 && p.viewingAt) { const { viewingAt, ...rest } = p; r = await post({ ...rest, message: `${rest.message ? rest.message + ' ' : ''}(Jadwal survey diminta: ${viewingAt})` }); }
+  return r && r.dealCode ? r : null;
+}
+let lastSync = Date.now();
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !API || Date.now() - lastSync < 60000) return;
+  lastSync = Date.now(); syncCatalog().then(c => { if (c && $('#fr-grid')) renderGrid(); });
+});
+
 function igCard(p) {
   const cap = (p.cap || '').replace(/\s+/g, ' ').trim() || 'Lihat postingan di Instagram';
   const stats = (p.likes != null || p.com != null) ? `<span>${p.likes != null ? '♥ ' + p.likes : ''}${p.likes != null && p.com != null ? ' &nbsp; ' : ''}${p.com != null ? '💬 ' + p.com : ''}</span>` : '';
@@ -106,7 +156,7 @@ const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const rp = n => 'Rp ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const wa = text => `https://wa.me/${CFG.WA_NUMBER}?text=${encodeURIComponent(text)}`;
-const IMG = k => U(`/__fortis/img/${k}.${k.startsWith('catalog-') ? 'webp' : 'jpg'}`);
+const IMG = k => /^https?:\/\//.test(k) ? k : U(`/__fortis/img/${k}.${k.startsWith('catalog-') ? 'webp' : 'jpg'}`);
 const ICO = {
   fire: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 2c.6 3.6-1.6 5.2-3.2 7.6-1.3 2-.6 4 1 5.1-.1-2.2 1.4-3.3 2.4-4.4 2.1 2 4.3 3.6 4.3 6.5a6.5 6.5 0 1 1-13 0c0-3.4 1.8-5.600 3.600-7.600C9.200 6.300 11 4.600 12.500 2z"/></svg>',
   pin: '<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5z"/></svg>',
@@ -422,11 +472,13 @@ function brandProjects() {
   const sub = h1 && $$('p', h1.closest('section') || document).find(p => /Thoughtfully|Koleksi hunian|A selection of homes/.test(p.textContent));
   set(sub, tr('Koleksi hunian, ruko, apartemen, dan lahan pilihan dari Fortis Realty, dengan legalitas jelas, proses transparan, dan pendampingan agen profesional.'));
   // the template only has 6 cards: clone the last card wrapper until there is one per listing
+  let projGrid = null;
   const firstCard = $('a[href*="project/"], a[data-fr-go]');
   if (firstCard) {
     let item = firstCard; while (item.parentElement && item.parentElement.children.length < 2) item = item.parentElement;
     const grid = item.parentElement;
     const cards = () => $$('a[href*="project/"], a[data-fr-go]').filter(a => $('[data-framer-name="Card Content"]', a));
+    projGrid = grid;
     let guard = 0;
     while (cards().length < P.length && guard++ < 40) {
       const last = [...grid.children].filter(c => $('[data-framer-name="Card Content"]', c)).pop();
@@ -435,7 +487,9 @@ function brandProjects() {
     }
   }
   $$('a[href*="project/"], a[data-fr-go]').forEach((a, i) => {
-    const pr = P[i]; if (!pr || !$('[data-framer-name="Card Content"]', a)) return;
+    const pr = P[i]; if (!$('[data-framer-name="Card Content"]', a)) return;
+    if (projGrid) { let w = a; while (w.parentElement && w.parentElement !== projGrid) w = w.parentElement; if (w.parentElement === projGrid) { if (pr) w.removeAttribute('data-fr-hide'); else w.setAttribute('data-fr-hide', ''); } }
+    if (!pr) return;
     a.dataset.frGo = `/?unit=${pr.id}#katalog`; a.setAttribute('href', U(`/?unit=${pr.id}`));
     const img = $('img', a); if (img && !img.src.includes('/__fortis/')) { img.removeAttribute('srcset'); img.removeAttribute('sizes'); img.src = IMG(pr.img); img.alt = pr.name; img.style.objectPosition = 'center'; const fr = $('[data-framer-name="Image"]', a); if (fr) { fr.style.height = 'auto'; fr.style.aspectRatio = '4 / 5'; } }
     const dp = $$('[data-framer-name="Date"] p, [data-framer-name="Location"] p', a);
@@ -704,6 +758,8 @@ function initKPR() {
   g('k-dp-r').addEventListener('input', e => { g('k-dp').value = e.target.value; calc(); });
   g('k-tenor').addEventListener('change', calc); g('k-bunga').addEventListener('input', calc);
   calc();
+  g('k-bunga').addEventListener('input', e => { e.target.dataset.touched = '1'; });
+  KPR_READY.then(() => { const b = g('k-bunga'); if (KPR_RATE === null || !b || b.dataset.touched) return; b.value = KPR_RATE; calc(); });   // benchmark rate from the dashboard
   window.__frSetKpr = price => { g('k-harga').value = rp(price).slice(3); g('k-harga-r').value = Math.min(Math.max(price, 1e8), 1e10); calc(); };
 }
 
@@ -832,6 +888,10 @@ function setupContact(sec) {
     } else msg = `Halo Fortis Realty, saya ${v.nama.trim()} ingin ${v.layanan.toLowerCase()}.`;
     msg += ` No. HP: ${v.hp.trim()}.`; if (v.email) msg += ` Email: ${v.email.trim()}.`; if ((v.pesan || '').trim()) msg += ` Catatan: ${v.pesan.trim()}`;
     $('#fr-cstatus').textContent = 'Membuka WhatsApp Concierge…'; window.open(wa(msg), '_blank', 'noopener');
+    const lead = { name: v.nama.trim(), phone: ph, service: v.layanan };
+    if (v.email) lead.email = v.email.trim(); if ((v.pesan || '').trim()) lead.message = v.pesan.trim();
+    if (isSurvey) { lead.propertyNo = +v.unit; lead.viewingAt = new Date(`${v.tgl}T${v.jam}:00+07:00`).toISOString(); }
+    sendInquiry(lead).then(r => { const st = $('#fr-cstatus'); if (r && st) st.textContent = `Permintaan Anda tercatat (${r.dealCode}). Membuka WhatsApp Concierge…`; });
   });
 }
 
@@ -911,11 +971,13 @@ function apply() {
 if (/[?&]unit=\d+/.test(location.search)) { document.documentElement.classList.add('fr-unitpage'); setTimeout(() => document.documentElement.classList.remove('fr-unitpage'), 8000); }
 function boot() {
   setTimeout(() => document.documentElement.classList.add('fr-ready'), 4000);
-  setTimeout(() => {
+  setTimeout(async () => {
+    await Promise.race([CATALOG.ready, new Promise(r => setTimeout(r, 2500))]);
     apply();
     if (location.hash && $(location.hash)) setTimeout(() => $(location.hash).scrollIntoView(), 100);
     const uid = +new URLSearchParams(location.search).get('unit'); if (uid && $('#fr-grid')) setTimeout(() => openModal(uid), 100);
     new MutationObserver(() => { clearTimeout(timer); timer = setTimeout(apply, 40); }).observe(document.body, { childList: true, subtree: true, characterData: true });
+    CATALOG.ready.then(c => { if (c && $('#fr-grid')) renderGrid(); });   // API answered after the first render
   }, 1200);
 }
 if (document.readyState === 'complete') boot(); else addEventListener('load', boot);

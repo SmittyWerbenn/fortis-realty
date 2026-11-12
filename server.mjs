@@ -19,6 +19,7 @@ function rewrite(s, origin, route){
   s = s.split('https://api.framer.com/').join(origin + '/__blocked/').split('https://events.framer.com/').join(origin + '/__blocked/');
   s = s.replace(/<link[^>]*rel="(?:shortcut )?icon"[^>]*>/g,'').replace(/<link[^>]*rel="apple-touch-icon"[^>]*>/g,'');
   s = s.replace('</head>','<link rel="icon" type="image/png" sizes="64x64" href="/__fortis/favicon.png"><link rel="apple-touch-icon" href="/__fortis/apple-touch-icon.png"><link rel="stylesheet" href="/__fortis/fortis.css"><script>if(location.pathname.replace(/[/]+$/,"")==="/project")document.documentElement.classList.add("fr-proj")</script><script>'+TITLE_GUARD+'</script>'+FADE+'<script defer src="/__fortis/fortis.js"></script><style>#__framer-badge-container,.__framer-badge{display:none!important}</style></head>');
+  if (process.env.FORTIS_API !== undefined) s = s.replace('<head>', '<head><script>window.__FR_API=' + JSON.stringify(process.env.FORTIS_API.replace(/\/+$/, '')) + '</script>');   // optional; on localhost fortis.js defaults to http://localhost:8766
   return s.replace(/<script[^>]*(events\.framer\.com|framer\.com\/edit)[^>]*><\/script>/g,'');
 }
 function find(pathname, search){
