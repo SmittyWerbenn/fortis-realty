@@ -40,6 +40,21 @@ statis di `fortis.js` bila API tidak terjangkau (hasil terakhir juga disimpan di
 | Bunga KPR acuan | `GET /api/public/settings` | Mengisi default "Suku Bunga" di kalkulator KPR (pengunjung tetap bisa mengubahnya) |
 | Booking survey / pesan | `POST /api/public/inquiries` | Form kontak mengirim lead ke dashboard (muncul di Deals, Tasks, Leads) lalu tetap membuka WhatsApp |
 
+### Hot Deal & diskon
+
+Field opsional pada tiap listing `format=site` (tanpa field ini situs tampil seperti biasa):
+
+| Field | Arti |
+| --- | --- |
+| `hot` (atau `isHotDeal`) | Unit ditandai Hot Deal |
+| `price` (atau `startingPrice`) | Harga normal |
+| `finalPrice` | Harga setelah diskon; bila kosong dihitung dari `discountType` (`PERCENT` / `AMOUNT`) + `discountValue` |
+| `promoLabel` | Teks badge, default `HOT DEAL` |
+| `promoValidUntil` | Tanggal ISO; setelah lewat, promo tidak ditampilkan lagi |
+
+Hasilnya: badge di kartu & `/project`, harga normal dicoret + harga promo, banner promo di halaman detail, filter **Hot Deals**
+(`/?hotDeal=true`, `/project?hotDeal=true`), kalkulator KPR terisi harga promo, dan pesan WhatsApp menyebut promonya.
+
 **Lokal**: jalankan dashboard (`cd ../fortis-dashboard/web && npm start` -> port 8766) lalu `npm run dev`. Di `localhost` situs otomatis memakai
 `http://localhost:8766`; ganti dengan `FORTIS_API=http://host:port npm run dev`.
 

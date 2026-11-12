@@ -164,9 +164,45 @@ const ICO = {
   ig: '<svg viewBox="0 0 24 24"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5zm0 2a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V7a3 3 0 0 0-3-3H7zm5 3.500A4.500 4.500 0 1 1 7.500 12 4.500 4.500 0 0 1 12 7.500zm0 2A2.500 2.500 0 1 0 14.500 12 2.500 2.500 0 0 0 12 9.500zM17.300 5.800a1 1 0 1 1-1 1 1 1 0 0 1 1-1z"/></svg>'
 };
 const ukuran = p => [p.lt ? `LT ${p.lt} m²` : '', p.lb ? `LB ${p.lb} m²` : ''].filter(Boolean).join(' · ');
-const priceHTML = p => `${rp(p.price)}${p.per ? ` <em>${p.per}</em>` : p.from ? ' <em>harga mulai</em>' : ''}`;
-const waUnit = p => `Halo Fortis Realty, saya tertarik dengan unit ${p.name} di ${p.loc}${p.city ? ', ' + p.city : ''} (${priceHTMLText(p)}). Mohon info lebih lanjut.`;
-const priceHTMLText = p => (p.from ? 'harga mulai ' : '') + rp(p.price) + (p.per || '');
+/* ---- Hot Deal / discount ----
+   Optional listing fields sent by the dashboard: hot | isHotDeal, finalPrice, discountType ('PERCENT' | 'AMOUNT'), discountValue,
+   promoLabel, promoValidUntil (ISO date). `price` (or startingPrice) is the normal price. A promo whose date has passed is ignored. */
+const rpShort = n => { const f = (v, u) => String(Math.round(v * 10) / 10).replace('.', ',') + ' ' + u; return n >= 1e9 ? 'Rp ' + f(n / 1e9, 'M') : n >= 1e6 ? 'Rp ' + f(n / 1e6, 'Jt') : rp(n); };
+const pctText = v => String(Math.round(v * 10) / 10).replace('.', ',') + '%';
+function promoEnd(p) { const v = p.promoValidUntil; if (!v) return null; const d = new Date(/^\d{4}-\d{2}-\d{2}$/.test(v) ? v + 'T23:59:59' : v); return isNaN(d) ? null : d; }
+function deal(p) {
+  const pos = v => typeof v === 'number' && isFinite(v) && v > 0;
+  const end = promoEnd(p), live = !end || end.getTime() >= Date.now();
+  const normal = pos(p.startingPrice) ? p.startingPrice : p.price;
+  const dv = pos(p.discountValue) ? p.discountValue : 0, type = String(p.discountType || '');
+  const isPct = /^(percent|pct|%)/i.test(type) || (!type && dv > 0 && dv < 100);
+  let final = normal;
+  if (live) {
+    if (pos(p.finalPrice) && p.finalPrice < normal) final = p.finalPrice;
+    else if (dv) final = isPct ? normal * (1 - dv / 100) : normal - dv;
+    else if (pos(p.price) && p.price < normal) final = p.price;
+  }
+  final = Math.round(final); if (!(final > 0 && final < normal)) final = normal;
+  const save = normal - final, cut = save > 0, pct = cut ? save / normal * 100 : 0;
+  const hot = live && (p.hot === true || p.isHotDeal === true);
+  const pctTag = dv ? isPct : Math.abs(pct - Math.round(pct)) < 0.05;   // only finalPrice known: a round percentage reads better than an amount
+  const tag = !cut ? '' : pctTag ? 'Hemat ' + pctText(dv && isPct ? dv : pct) : 'Diskon ' + rpShort(save);
+  return { normal, final, save, pct, cut, hot, active: hot || cut, label: String(p.promoLabel || '').trim() || 'Hot Deal', tag, end: live ? end : null };
+}
+const badgeHTML = p => { const d = deal(p); return d.active ? `<span class="fr-badge hot"><span>${esc(d.label)}</span>${d.tag ? `<i aria-hidden="true">•</i><span>${d.tag}</span>` : ''}</span>` : ''; };
+const priceHTML = p => { const d = deal(p), tail = p.per ? ` <em>${p.per}</em>` : p.from ? ' <em>harga mulai</em>' : ''; return d.cut ? `<s class="fr-was">${rp(d.normal)}</s><span class="fr-now">${rp(d.final)}</span>${tail}` : `${rp(d.normal)}${tail}`; };
+const waUnit = p => { const d = deal(p), at = `${p.name} di ${p.loc}${p.city ? ', ' + p.city : ''}`;
+  return d.active ? `Halo Fortis Realty, saya tertarik dengan promo ${d.label.toUpperCase()} unit ${at} (${priceHTMLText(p)}). Mohon info lebih lanjut.` : `Halo Fortis Realty, saya tertarik dengan unit ${at} (${priceHTMLText(p)}). Mohon info lebih lanjut.`; };
+const priceHTMLText = p => { const d = deal(p); return d.cut ? `harga promo ${rp(d.final)}${p.per || ''}, harga normal ${rp(d.normal)}${p.per || ''}` : (p.from ? 'harga mulai ' : '') + rp(d.normal) + (p.per || ''); };
+const MONTHS = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function promoHTML(p) {
+  const d = deal(p); if (!d.active) return '';
+  let until = '';
+  if (d.end) { const days = Math.floor((new Date(d.end.getFullYear(), d.end.getMonth(), d.end.getDate()) - new Date(new Date().setHours(0, 0, 0, 0))) / 864e5);
+    until = `<div class="fr-promo-d"><span>Berlaku s.d.</span> <time datetime="${esc(p.promoValidUntil)}">${d.end.getDate()} ${MONTHS[d.end.getMonth()]} ${d.end.getFullYear()}</time><b>${days <= 0 ? 'Berakhir hari ini' : 'Sisa ' + days + ' hari'}</b></div>`; }
+  return `<div class="fr-promo">${badgeHTML(p)}${d.cut ? `<div class="fr-promo-s"><strong>Hemat ${rp(d.save)}</strong><span>(${pctText(d.pct)})</span></div>` : ''}${until}</div>`;
+}
 
 /* ================= i18n (Bahasa Indonesia <-> English) ================= */
 let LANG = 'id';
@@ -197,6 +233,8 @@ const EN = {
   'Hubungi Sales': 'Contact Sales', 'Detail Unit': 'Unit Details', 'Detail unit': 'Unit details', 'Tutup': 'Close', 'Kembali': 'Back',
   'Sertifikat': 'Certificate', 'Luas Tanah': 'Land Area', 'Luas Bangunan': 'Building Area', 'Kamar Tidur': 'Bedrooms', 'Kamar Mandi': 'Bathrooms', 'Listrik': 'Electricity',
   'Galeri': 'Gallery', 'Galeri Properti': 'Property Gallery', 'Rekomendasi': 'Recommended', 'Properti Lainnya': 'More Properties', 'Katalog': 'Catalog', 'Foto': 'Photo',
+  'Hot Deals': 'Hot Deals', 'Promo': 'Promo', 'Berlaku s.d.': 'Valid until', 'Berakhir hari ini': 'Ends today', 'Belum ada unit Hot Deal saat ini.': 'No Hot Deal units at the moment.',
+  'harga promo': 'promo price',
   'Booking Survey': 'Book a Survey', 'Simulasi KPR unit ini': 'Simulate mortgage for this unit',
   // facilities
   'Carport 2 mobil': '2-car carport', 'Taman': 'Garden', 'One gate system': 'One-gate system', '3 lantai': '3 floors', '2 lantai': '2 floors', 'Parkir depan': 'Front parking', 'Dekat mall': 'Near the mall', 'Area komersial': 'Commercial area',
@@ -240,6 +278,8 @@ const EN = {
 const PAT = [
   [/^Menampilkan (\d+) dari (\d+) unit$/, m => `Showing ${m[1]} of ${m[2]} units`],
   [/^(\d+) unit ditemukan$/, m => `${m[1]} ${m[1] === '1' ? 'unit' : 'units'} found`],
+  [/^Hemat (.+)$/, m => `Save ${m[1]}`], [/^Diskon (Rp .+)$/, m => `${m[1]} off`], [/^Sisa (\d+) hari$/, m => `${m[1]} ${m[1] === '1' ? 'day' : 'days'} left`],
+  [/^(\d{1,2}) (Januari|Februari|Maret|April|Mei|Juni|Juli|Agustus|September|Oktober|November|Desember) (\d{4})$/, m => `${MONTHS_EN[MONTHS.indexOf(m[2])]} ${m[1]}, ${m[3]}`],
   [/^Nominal DP: (.+)$/, m => `Down payment: ${m[1]}`],
   [/^(\d+) tahun$/, m => `${m[1]} years`],
   [/^Follow @(.+) di Instagram$/, m => `Follow @${m[1]} on Instagram`],
@@ -259,7 +299,7 @@ function trAny(s) {
   return out === core ? s : s.replace(s.trim(), out);
 }
 // my own markup only (template-owned text is handled with tr()/textSwap): remember each original and swap on language change
-const I18N_ROOTS = '.fr-sec, #fr-modal, .fr-pmeta, #fr-contact';
+const I18N_ROOTS = '.fr-sec, #fr-modal, .fr-pmeta, #fr-contact, .fr-pbadges';
 const ORIG = new WeakMap();
 function i18nDom() {
   const en = LANG === 'en';
@@ -472,6 +512,7 @@ function brandProjects() {
   const sub = h1 && $$('p', h1.closest('section') || document).find(p => /Thoughtfully|Koleksi hunian|A selection of homes/.test(p.textContent));
   set(sub, tr('Koleksi hunian, ruko, apartemen, dan lahan pilihan dari Fortis Realty, dengan legalitas jelas, proses transparan, dan pendampingan agen profesional.'));
   // the template only has 6 cards: clone the last card wrapper until there is one per listing
+  const L = state.hot ? P.filter(p => deal(p).active) : P;   // /project?hotDeal=true -> promo units only
   let projGrid = null;
   const firstCard = $('a[href*="project/"], a[data-fr-go]');
   if (firstCard) {
@@ -480,28 +521,38 @@ function brandProjects() {
     const cards = () => $$('a[href*="project/"], a[data-fr-go]').filter(a => $('[data-framer-name="Card Content"]', a));
     projGrid = grid;
     let guard = 0;
-    while (cards().length < P.length && guard++ < 40) {
+    while (cards().length < L.length && guard++ < 40) {
       const last = [...grid.children].filter(c => $('[data-framer-name="Card Content"]', c)).pop();
       if (!last) break;
       const clone = last.cloneNode(true); $$('.fr-pmeta', clone).forEach(x => x.remove()); grid.appendChild(clone);
     }
   }
   $$('a[href*="project/"], a[data-fr-go]').forEach((a, i) => {
-    const pr = P[i]; if (!$('[data-framer-name="Card Content"]', a)) return;
+    const pr = L[i]; if (!$('[data-framer-name="Card Content"]', a)) return;
     if (projGrid) { let w = a; while (w.parentElement && w.parentElement !== projGrid) w = w.parentElement; if (w.parentElement === projGrid) { if (pr) w.removeAttribute('data-fr-hide'); else w.setAttribute('data-fr-hide', ''); } }
     if (!pr) return;
     a.dataset.frGo = `/?unit=${pr.id}#katalog`; a.setAttribute('href', U(`/?unit=${pr.id}`));
-    const img = $('img', a); if (img && !img.src.includes('/__fortis/')) { img.removeAttribute('srcset'); img.removeAttribute('sizes'); img.src = IMG(pr.img); img.alt = pr.name; img.style.objectPosition = 'center'; const fr = $('[data-framer-name="Image"]', a); if (fr) { fr.style.height = 'auto'; fr.style.aspectRatio = '4 / 5'; } }
+    const img = $('img', a); if (img && img.dataset.frSrc !== IMG(pr.img)) { img.dataset.frSrc = IMG(pr.img); img.removeAttribute('srcset'); img.removeAttribute('sizes'); img.src = IMG(pr.img); img.alt = pr.name; img.style.objectPosition = 'center'; const fr = $('[data-framer-name="Image"]', a); if (fr) { fr.style.height = 'auto'; fr.style.aspectRatio = '4 / 5'; } }
     const dp = $$('[data-framer-name="Date"] p, [data-framer-name="Location"] p', a);
     set(dp[0], tr(pr.status === 'dijual' ? 'Dijual' : 'Disewa')); set(dp[1], pr.loc);
     set($('h4', a), pr.name);
-    const oldMeta = $('.fr-pmeta', a); if (oldMeta && oldMeta.dataset.pid !== String(pr.id)) oldMeta.remove();
+    const sig = pr.id + '|' + priceHTML(pr);
+    const oldMeta = $('.fr-pmeta', a); if (oldMeta && oldMeta.dataset.pid !== sig) oldMeta.remove();
+    { const fr = $('[data-framer-name="Image"]', a), bh = badgeHTML(pr); let b = fr && $('.fr-pbadges', fr);
+      if (!bh) { if (b) b.remove(); }
+      else if (fr) { if (!b) { b = document.createElement('div'); b.className = 'fr-badges fr-pbadges'; fr.appendChild(b); } if (b.dataset.sig !== bh) { b.dataset.sig = bh; b.innerHTML = bh; } } }
     if (!$('.fr-pmeta', a)) {
-      const m = document.createElement('div'); m.className = 'fr-pmeta'; m.dataset.pid = pr.id;
+      const m = document.createElement('div'); m.className = 'fr-pmeta'; m.dataset.pid = sig;
       m.innerHTML = `<div class="fr-pprice">${priceHTML(pr)}</div><div class="fr-pspec">${TYPES[pr.type]} · ${ukuran(pr)}${pr.kt ? ' · ' + pr.kt + ' KT' : ''}${pr.km ? ' · ' + pr.km + ' KM' : ''}</div>`;
       $('[data-framer-name="Card Content"]', a).appendChild(m);
     }
   });
+  if (projGrid) {
+    let bar = $('#fr-pfilter');
+    if (!bar) { bar = document.createElement('div'); bar.id = 'fr-pfilter'; bar.className = 'fr-pfilter'; bar.innerHTML = `<button class="fr-chip fr-chip-hot" data-fh type="button" aria-pressed="${state.hot}">Hot Deals</button><span class="fr-count"></span>`; projGrid.parentElement.insertBefore(bar, projGrid); }
+    const note = !state.hot ? '' : L.length ? `${L.length} unit ditemukan` : 'Belum ada unit Hot Deal saat ini.';
+    set($('.fr-count', bar), LANG === 'en' ? trAny(note) : note);
+  }
   decorateProjectImages();
   // the template's "Load More" button is not needed here: hide it (and never let Framer paginate the CMS list)
   $$('button, a, [role="button"]').filter(e => /^\s*load more\s*$/i.test(e.textContent)).forEach(more => {
@@ -513,7 +564,7 @@ function brandProjects() {
 }
 
 /* ================= sections ================= */
-const state = { type: 'all', status: 'all', loc: 'all', unit: '' };
+const state = { type: 'all', status: 'all', loc: 'all', unit: '', hot: /[?&]hotDeal=(true|1)(&|$)/.test(location.search) };
 
 function aboutSec() {
   const pill = [['01', 'Listing Primer Resmi', 'Unit baru langsung dari developer mitra, dengan informasi harga dan legalitas yang jelas.'],
@@ -552,6 +603,7 @@ function sections() {
     <div class="fr-frow"><b>Status</b>${[['all', 'Semua'], ['dijual', 'Dijual'], ['disewa', 'Disewa']].map(([k, v]) => `<button class="fr-chip" data-fs="${k}" aria-pressed="${k === 'all'}">${v}</button>`).join('')}
       <select class="fr-select" id="fr-loc" aria-label="Lokasi"><option value="all">Semua Lokasi</option>${locs.map(l => `<option>${esc(l)}</option>`).join('')}</select>
     </div>
+    <div class="fr-frow"><b>Promo</b><button class="fr-chip fr-chip-hot" data-fh type="button" aria-pressed="${state.hot}">Hot Deals</button></div>
     <div class="fr-frow fr-countrow"><span class="fr-count" id="fr-count"></span></div>
   </div>
   <div class="fr-grid" id="fr-grid"></div>
@@ -588,12 +640,12 @@ function sections() {
 
 /* ---- catalog ---- */
 function renderGrid() {
-  const list = P.filter(p => (state.type === 'all' || p.type === state.type) && (state.status === 'all' || p.status === state.status) && (state.loc === 'all' || p.loc === state.loc));
+  const list = P.filter(p => (state.type === 'all' || p.type === state.type) && (state.status === 'all' || p.status === state.status) && (state.loc === 'all' || p.loc === state.loc) && (!state.hot || deal(p).active));
   const HOME_MAX = 6, shown = list.slice(0, HOME_MAX);
   $('#fr-count').textContent = list.length > HOME_MAX ? `Menampilkan ${shown.length} dari ${list.length} unit` : `${list.length} unit ditemukan`;
-  const lm = $('#fr-loadmore'); if (lm) { lm.parentElement.hidden = list.length <= HOME_MAX; const nn = $('.fr-more-n', lm), v = '+' + (list.length - HOME_MAX); if (nn && nn.textContent !== v) nn.textContent = v; }
+  const lm = $('#fr-loadmore'); if (lm) { lm.parentElement.hidden = list.length <= HOME_MAX; lm.setAttribute('href', U('/project' + (state.hot ? '?hotDeal=true' : ''))); const nn = $('.fr-more-n', lm), v = '+' + (list.length - HOME_MAX); if (nn && nn.textContent !== v) nn.textContent = v; }
   $('#fr-grid').innerHTML = list.length ? shown.map(p => `
-  <article class="fr-card"><div class="fr-img" data-detail="${p.id}" role="button" tabindex="0" aria-label="Detail ${esc(p.name)}"><img src="${IMG(p.img)}" alt="${esc(p.name)}" loading="lazy">${p.hot ? '<div class="fr-badges"><span class="fr-badge hot">' + ICO.fire + 'Hot Deal</span></div>' : ''}</div>
+  <article class="fr-card"><div class="fr-img" data-detail="${p.id}" role="button" tabindex="0" aria-label="Detail ${esc(p.name)}"><img src="${IMG(p.img)}" alt="${esc(p.name)}" loading="lazy">${deal(p).active ? '<div class="fr-badges">' + badgeHTML(p) + '</div>' : ''}</div>
     <div class="fr-cbody"><div class="fr-tags"><span>${p.status === 'dijual' ? 'Dijual' : 'Disewa'}</span><span>${esc(p.loc)}</span></div>
     <h3>${esc(p.name)}</h3>
     <div class="fr-pmeta"><div class="fr-pprice">${priceHTML(p)}</div><div class="fr-pspec">${TYPES[p.type]} · ${ukuran(p)}${p.kt ? ' · ' + p.kt + ' KT' : ''}${p.km ? ' · ' + p.km + ' KM' : ''}</div></div>
@@ -710,8 +762,9 @@ function openModal(id) {
    <div class="fr-dtop">
     <div class="fr-dposter"><img src="${IMG(p.img)}" alt="${esc(p.name)}"></div>
     <div class="fr-dinfo">
-      <div class="fr-badges" style="position:static"><span class="fr-badge ${p.status === 'disewa' ? 'rent' : ''}" style="border:1px solid #27141833">${st}</span>${p.hot ? '<span class="fr-badge hot">' + ICO.fire + 'Hot Deal</span>' : ''}</div>
+      <div class="fr-badges" style="position:static"><span class="fr-badge ${p.status === 'disewa' ? 'rent' : ''}" style="border:1px solid #27141833">${st}</span></div>
       <h1 class="fr-dh">${esc(p.name)}</h1><div class="fr-loc" style="margin:0">${ICO.pin}${esc(p.loc)}, ${esc(p.city)}</div>
+      ${promoHTML(p)}
       <div class="fr-dprice"><div class="fr-price">${priceHTML(p)}</div></div>
       <p class="fr-ddesc">${esc(p.desc)}</p>
       ${spec.length ? `<div class="fr-dspec">${spec.map(([l, v]) => `<div><strong>${v}</strong><span>${l}</span></div>`).join('')}</div>` : ''}
@@ -725,7 +778,7 @@ function openModal(id) {
    <section class="fr-dsec"><div class="fr-tag">Rekomendasi</div><h2 class="fr-h2">Properti Lainnya</h2>
     <div class="fr-rel">${rel.map(r => `<a class="fr-rel-i" href="${U('/?unit=' + r.id)}" data-fr-go="/?unit=${r.id}"><div class="fr-rel-img"><img src="${IMG(r.img)}" alt="${esc(r.name)}" loading="lazy"></div><div class="fr-rel-b"><h3>${esc(r.name)}</h3><div class="fr-loc" style="margin:0">${ICO.pin}${esc(r.loc)}</div><div class="fr-rel-p">${priceHTML(r)}</div></div></a>`).join('')}</div></section>
   </div>
-  <div class="fr-dbar"><div><small>${p.from ? 'harga mulai' : ''}</small><b>${rp(p.price)}${p.per || ''}</b></div><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}Hubungi Sales</a></div>`;
+  <div class="fr-dbar"><div><small>${deal(p).cut ? `<s>${rp(deal(p).normal)}</s>` : p.from ? 'harga mulai' : ''}</small><b${deal(p).cut ? ' class="fr-now"' : ''}>${rp(deal(p).final)}${p.per || ''}</b></div><a class="fr-btn wa" target="_blank" rel="noopener" href="${wa(waUnit(p))}">${ICO.wa}Hubungi Sales</a></div>`;
   i18nDom(); m.classList.add('open'); m.scrollTop = 0; document.documentElement.classList.add('fr-unit-ready'); document.documentElement.style.overflow = 'hidden';
 }
 function closeModal() { $('#fr-modal').classList.remove('open'); const h = document.documentElement; h.classList.remove('fr-unitpage', 'fr-unit-ready'); h.style.overflow = ''; if (/[?&]unit=/.test(location.search)) history.replaceState(null, '', U('/') + location.hash); }
@@ -926,9 +979,17 @@ window.addEventListener('click', e => {
   const ft = t.closest('[data-ft]'), fs = t.closest('[data-fs]');
   if (ft) { state.type = ft.dataset.ft; $$('[data-ft]').forEach(b => b.setAttribute('aria-pressed', b === ft)); renderGrid(); return; }
   if (fs) { state.status = fs.dataset.fs; $$('[data-fs]').forEach(b => b.setAttribute('aria-pressed', b === fs)); renderGrid(); return; }
+  const fh = t.closest('[data-fh]');
+  if (fh) {
+    state.hot = !state.hot;
+    const q = new URLSearchParams(location.search); if (state.hot) q.set('hotDeal', 'true'); else q.delete('hotDeal'); const qs = q.toString() ? '?' + q : '';
+    if (!$('#fr-grid')) { location.href = U('/project') + qs; return; }   // /project: reload with the filter in the URL
+    history.replaceState(null, '', location.pathname + qs + location.hash);
+    $$('[data-fh]').forEach(b => b.setAttribute('aria-pressed', state.hot)); renderGrid(); return;
+  }
   const d = t.closest('[data-detail]'); if (d) { e.preventDefault(); location.href = U(`/?unit=${+d.dataset.detail}`); return; }
   const b = t.closest('[data-book]'); if (b) { if (window.__frBook) window.__frBook(b.dataset.book); goTo('kontak'); return; }
-  const k = t.closest('[data-kpr]'); if (k) { window.__frSetKpr(P.find(x => x.id === +k.dataset.kpr).price); goTo('kpr'); return; }
+  const k = t.closest('[data-kpr]'); if (k) { window.__frSetKpr(deal(P.find(x => x.id === +k.dataset.kpr)).final); goTo('kpr'); return; }
   const lbn = t.closest('[data-lb-n]'); if (lbn) { openLb(LB.i + +lbn.dataset.lbN); return; }
   if (t.closest('[data-lb-x]') || t.id === 'fr-lb') { closeLb(); return; }
   const lb = t.closest('[data-lb]'); if (lb) { openLb(+lb.dataset.lb); return; }

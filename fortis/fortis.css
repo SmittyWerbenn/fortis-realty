@@ -291,16 +291,29 @@ html.fr-proj:not(.fr-ready) #main{opacity:0!important}
 .fr-lang.mobile{position:absolute;right:62px;top:35px;transform:translateY(-50%);margin:0}
 .fr-lang.mobile{z-index:20}
 
-/* Hot Deal badge */
-.fr-badges{top:16px;left:16px}
-.fr-badge.hot{position:relative;overflow:hidden;display:inline-flex;align-items:center;gap:7px;padding:10px 15px 10px 12px;background:linear-gradient(135deg,#d71f1f 0%,#f2551c 55%,#ff8a1f 100%);color:#fff;font:600 13px/1 var(--fr-head);letter-spacing:.08em;box-shadow:0 10px 24px -8px rgba(226,50,20,.75),inset 0 0 0 1px rgba(255,255,255,.22);animation:frHotGlow 2.6s ease-in-out infinite}
-.fr-badge.hot svg{width:15px;height:15px;fill:#fff;flex:none;transform-origin:50% 90%;animation:frFlame 1.3s ease-in-out infinite;filter:drop-shadow(0 0 4px rgba(255,220,150,.9))}
-.fr-badge.hot:after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:frShine 3.4s ease-in-out infinite}
-@keyframes frFlame{0%,100%{transform:scale(1) rotate(-3deg)}50%{transform:scale(1.18) rotate(3deg)}}
-@keyframes frShine{0%,55%{left:-60%}100%{left:130%}}
-@keyframes frHotGlow{0%,100%{box-shadow:0 10px 24px -8px rgba(226,50,20,.65),inset 0 0 0 1px rgba(255,255,255,.22)}50%{box-shadow:0 10px 30px -4px rgba(255,110,30,.95),inset 0 0 0 1px rgba(255,255,255,.3)}}
-.fr-mcont .fr-badges .fr-badge.hot{box-shadow:0 8px 20px -8px rgba(226,50,20,.7),inset 0 0 0 1px rgba(255,255,255,.22)}
-@media (prefers-reduced-motion:reduce){.fr-badge.hot,.fr-badge.hot svg,.fr-badge.hot:after{animation:none}}
+/* Hot Deal / discount: sharp maroon block with a champagne-gold hairline (promo palette: maroon #5C1A1A, gold #C9A84C / #E8D080) */
+:root{--fr-promo:#5C1A1A;--fr-promo-line:#C9A84C;--fr-promo-text:#E8D080}
+.fr-badges{top:16px;left:16px;right:16px;flex-wrap:wrap;z-index:2;pointer-events:none}
+.fr-badge.hot{display:inline-flex;align-items:center;flex-wrap:wrap;gap:4px 8px;padding:9px 12px;border:1px solid var(--fr-promo-line);border-radius:0;background:var(--fr-promo);color:var(--fr-promo-text);font:600 12px/1.15 var(--fr-head);letter-spacing:.14em;text-transform:uppercase;box-shadow:0 10px 24px -14px rgba(0,0,0,.7)}
+.fr-badge.hot i{font-style:normal;opacity:.7}
+.fr-badge.hot *{color:inherit!important}
+.fr-was{display:block;margin-bottom:5px;font:400 13px/1.2 var(--fr-head);font-variant-numeric:tabular-nums;text-decoration:line-through;color:rgba(39,20,24,.55)!important}
+.fr-now{font-variant-numeric:tabular-nums;color:var(--fr-promo)!important}
+.fr-dprice .fr-was{font-size:15px;margin-bottom:8px}
+.fr-chip-hot{border-color:var(--fr-promo)!important;color:var(--fr-promo)}
+.fr-chip-hot:hover{background:rgba(92,26,26,.08)!important}
+.fr-chip-hot[aria-pressed=true]{background:var(--fr-promo)!important;color:var(--fr-promo-text)!important;border-color:var(--fr-promo-line)!important}
+.fr-pfilter{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px;width:100%;margin:0 0 4px;font-family:var(--fr-body);color:#271418}
+.fr-pfilter .fr-count{width:auto;font-size:14px;opacity:.7}
+.fr-promo{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:16px 18px;background:var(--fr-maroon);border-left:3px solid var(--fr-promo-line);color:var(--fr-promo-text)}
+.fr-promo .fr-badge.hot{box-shadow:none}
+.fr-promo-s{display:flex;align-items:baseline;gap:8px;font:600 17px/1.2 var(--fr-head);font-variant-numeric:tabular-nums}
+.fr-promo-s strong{font-weight:600}
+.fr-promo-s span{font:400 13px/1 var(--fr-body);opacity:.8}
+.fr-promo-d{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin-left:auto;font:400 13px/1.3 var(--fr-body);color:var(--fr-gold-100)}
+.fr-promo-d b{margin-left:8px;padding:5px 8px;border:1px solid var(--fr-gold-muted);font:600 12px/1 var(--fr-head);letter-spacing:.08em;text-transform:uppercase}
+.fr-dbar small s{font-size:12px;text-transform:none}.fr-dbar b{white-space:nowrap}
+@media(max-width:767px){.fr-badges{top:12px;left:12px;right:12px}.fr-badge.hot{letter-spacing:.1em;padding:8px 10px}.fr-promo-d{margin-left:0;width:100%}}
 
 /* listing photos are portrait posters: keep the headline + price banner in frame; show the whole poster in the detail modal */
 .fr-img img{object-position:50% 12%}
